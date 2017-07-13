@@ -1,9 +1,32 @@
 // Initialize the database
 const Datastore = require('nedb');
-const db = new Datastore();
+// const nsdb = new Datastore({ filename: __dirname + '/db/nsinventory' });
+// const cadb = new Datastore({ filename: __dirname + '/db/cainventory' });
+// const receiptdb = new Datastore({ filename: __dirname + '/db/newreceipts' });
 
-//{ filename: __dirname + '/db/inventory' }
+const nsdb = new Datastore();
+const cadb = new Datastore();
+const receiptdb = new Datastore();
 
-db.loadDatabase((err) => console.log(err));
+nsdb.loadDatabase((err) => console.log(err));
+cadb.loadDatabase((err) => console.log(err));
+receiptdb.loadDatabase((err) => console.log(err));
 
-module.exports = db;
+nsdb.ensureIndex({ fieldName: 'sku' }, function (err) {
+  console.log(err)
+});
+
+cadb.ensureIndex({ fieldName: 'sku' }, function (err) {
+  console.log(err)
+});
+
+receiptdb.ensureIndex({ fieldName: 'sku' }, function (err) {
+  console.log(err)
+});
+
+
+module.exports = {
+  nsdb,
+  cadb,
+  receiptdb
+};

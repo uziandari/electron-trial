@@ -10,16 +10,14 @@ import {red500} from 'material-ui/styles/colors';
 import ContentAddCircleOutline from '../../node_modules/material-ui/svg-icons/content/add-circle-outline';
 import ActionCheckCircle from '../../node_modules/material-ui/svg-icons/action/check-circle';
 
-import parseFile from '../utilities/parseFile';
-
-
 import Loading from '../components/Loading';
 import LoadingComplete from '../components/LoadingComplete';
 
 //database
-import db from '../database';
+import { nsdb, cadb, receiptdb } from '../database';
 
 //utilities import
+import parseFile from '../utilities/parseFile';
 import determineFile from '../utilities/determineFile';
 
 injectTapEventPlugin();
@@ -100,10 +98,22 @@ export default class Upload extends Component {
     }
   }
 
+  //testing db find
   handleFind(event) {
-    db.findOne({_id: '17SKZALLIN11111111111101'}, function (err, docs) {
-      console.log(docs)
+    let item = {}
+    nsdb.find({sku: '33RBKRSEABVMENMD111WHT01'}, function (err, docs) {
+      if (docs.length > 1) {
+        item = Object.assign(item, docs[0])
+      }
     });
+    cadb.find({sku: '33RBKRSEABVMENMD111WHT01'}, function (err, docs) {
+      item = Object.assign(item, docs[0])
+    });
+    receiptdb.find({sku: '33RBKRSEABVMENMD111WHT01'}, function (err, docs) {
+      item = Object.assign(item, docs[0])
+      console.log('item is', item)
+    });  
+        
   }
 
   render() {

@@ -6,12 +6,14 @@ const fileFilter = require('./fileFilter');
 const buildSchema = require('./buildSchema');
 
 //database
-const db =  require('../database');
+const { nsdb, cadb, receiptdb } =  require('../database');
 
 const parseFile = (filePath, fileName, recordName) => {
   let source = fs.createReadStream(filePath);
   
   let linesRead = 0;
+
+  let output = [];
 
   let delimeter = fileFilter(fileName);
 
@@ -23,23 +25,38 @@ const parseFile = (filePath, fileName, recordName) => {
   parser.on("readable", () => {
     let record;
     while (record = parser.read()) {
-      const recordSchema = buildSchema(record, recordName)
       linesRead++;
-      db.update(
-        {_id: record[Object.keys(record)[0]]},
-        {$addToSet: {recordSchema}},
-        {upsert: true}, 
-        (err) => {
-        if (err) {
-          console.log(err)
-        }
-      });
+      const recordSchema = buildSchema(record, recordName)
+      output.push(recordSchema)   
     }
   });
 
   parser.on("error", (error) => console.log(error));
 
-  parser.on("end", () => console.log(`lines: ${linesRead}`));
+  parser.on("end", () => {
+    if (recordName === 'nsinventory') {
+      nsdb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('ns inventory added to db.');
+      });
+    } else if (recordName === 'cainventory') {
+      cadb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('ca inventory added to db.');
+      });
+    } else if (recordName === 'newreceipts') {
+      receiptdb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('new receipts added to db.');
+      });
+    }
+  });
 
   source.pipe(parser);
 } 

@@ -175,6 +175,7 @@
     "csv-parse": "^1.2.0",
     "devtron": "^1.4.0",
     "electron-debug": "^1.2.0",
+    "fast-csv": "^2.4.0",
     "font-awesome": "^4.7.0",
     "history": "^4.6.3",
     "material-ui": "^0.18.6",
