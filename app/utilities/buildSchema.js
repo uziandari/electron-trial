@@ -7,12 +7,15 @@ const buildSchema = (record, recordName) => {
         updatedAt: Date.now()
       });
     case "nsinventory":
+
+      let parsedCommitted = parseInt(record['Sum of Committed'], 10) || 0;
+
       return ({
         sku: record['Name'],
         description: record['Description'],
         invLocation: record['Inventory Location'],
         quantity: parseInt(record['Location On Hand'], 10),
-        committed: parseInt(record['Sum of Committed'], 10),
+        committed: parsedCommitted,
         upc: record['CustomUPC'],
         bin: record['Bin'],
         backStock: record['Backstock'],

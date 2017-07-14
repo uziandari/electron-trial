@@ -98,23 +98,31 @@ export default class Upload extends Component {
     }
   }
 
-  //testing db find
+  //find <9
   handleFind(event) {
-    let item = {}
-    nsdb.find({sku: '33RBKRSEABVMENMD111WHT01'}, function (err, docs) {
-      if (docs.length > 1) {
-        item = Object.assign(item, docs[0])
-      }
-    });
-    cadb.find({sku: '33RBKRSEABVMENMD111WHT01'}, function (err, docs) {
-      item = Object.assign(item, docs[0])
-    });
-    receiptdb.find({sku: '33RBKRSEABVMENMD111WHT01'}, function (err, docs) {
-      item = Object.assign(item, docs[0])
-      console.log('item is', item)
-    });  
+    let item = []
+    cadb.find({quantityAvailable: {$lt: 10, $gt: 0}, $not: {flag: {$regex: /briantest|inline|final/i} }}, (err, docs) => {
+      docs.forEach((doc) => {
+        let completeSku = {};
+        nsdb.find({sku: doc.sku}, (err, res) => {
+          if (res.length === 1) {
+            completeSku = Object.assign(doc, ...res);
+          }
+        receiptdb.find({sku: doc.sku}, (err, res) => {
+          if (res) {
+            completeSku = Object.assign(doc, ...res);
+          }
+          if (!completeSku.hasOwnProperty('receiptDate'))
+            item.push(completeSku);
+          });
+        });
         
+      });
+      console.log(item);
+    });        
   }
+
+  //33RBKCMFGHTMENXL111WHT01
 
   render() {
 
