@@ -26,7 +26,7 @@ const buildSchema = (record, recordName) => {
       });
     case "cainventory":
 
-      let pulledQuantity = record['DC Quantity'].match((/\d+$/));
+      let pulledQuantity = record['DC Quantity'].match((/\-?\d+$/));
 
       return ({
         sku: record['Inventory Number'],
