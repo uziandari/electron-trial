@@ -17,8 +17,14 @@ import LoadingComplete from '../components/LoadingComplete';
 import { nsdb, cadb, receiptdb } from '../database';
 
 //utilities import
-import parseFile from '../utilities/parseFile';
+//import parseFile from '../utilities/parseFile';
 import determineFile from '../utilities/determineFile';
+
+import fs from 'fs';
+import Parse from 'csv-parse'
+import fileFilter from '../utilities/fileFilter';
+import buildSchema from '../utilities/buildSchema';
+
 
 injectTapEventPlugin();
 export default class Upload extends Component {
@@ -85,16 +91,32 @@ export default class Upload extends Component {
   handleClick (event) {
     if (this.state.filesToBeSent.length > 0) {
       let filesArray = this.state.filesToBeSent;
-      
-      for (let i in filesArray) {
-        let recordName = this.state.filesPreview[i].toLowerCase().replace(/\s+/g, '');
-        parseFile(filesArray[i].path, filesArray[i].name, recordName)
-      }
+      let filesRead = 0;
+      let that = this;
 
       this.setState({
         filesUploading: true,
         filesUploaded: false
       });
+      
+      function done() {
+        filesRead++;
+        console.log(`Files read: ${filesRead}`)
+        if (filesRead === that.state.filesToBeSent.length) {
+           console.log("DONE!")
+           that.setState({
+             filesUploading: false,
+             filesUploaded: true
+           })
+        }
+      }
+      
+      for (let i in filesArray) {
+        let recordName = this.state.filesPreview[i].toLowerCase().replace(/\s+/g, '');
+        parseFile(filesArray[i].path, filesArray[i].name, recordName, done)
+      }
+
+      
     }
   }
 
@@ -121,8 +143,6 @@ export default class Upload extends Component {
       console.log(item);
     });        
   }
-
-  //33RBKCMFGHTMENXL111WHT01
 
   render() {
 
@@ -207,7 +227,7 @@ const styles = {
   },
   dropArea: {
     width: '100vw',
-    height: 360
+    height: 240
   },
   divStyle: {
     margin: 15
@@ -223,3 +243,60 @@ const styles = {
     margin: 0
   }
 };
+
+const parseFile = (filePath, fileName, recordName, done) => {
+  let source = fs.createReadStream(filePath);
+  
+  let linesRead = 0;
+
+  let output = [];
+
+  let delimeter = fileFilter(fileName);
+
+  let parser = Parse({
+    delimiter: delimeter,
+    columns: true 
+  });
+
+  parser.on("readable", () => {
+    let record;
+    while (record = parser.read()) {
+      linesRead++;
+      const recordSchema = buildSchema(record, recordName)
+      output.push(recordSchema)   
+    }
+  });
+
+  parser.on("error", (error) => console.log(error));
+
+  parser.on("end", () => {
+    if (recordName === 'nsinventory') {
+      nsdb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('ns inventory added to db.');
+        done();
+      });
+    } else if (recordName === 'cainventory') {
+      cadb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('ca inventory added to db.');
+        done();
+      });
+    } else if (recordName === 'newreceipts') {
+      receiptdb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('new receipts added to db.');
+        done();
+      });
+    }
+    
+  });
+
+  source.pipe(parser);
+} 

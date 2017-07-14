@@ -8,7 +8,7 @@ const buildSchema = require('./buildSchema');
 //database
 const { nsdb, cadb, receiptdb } =  require('../database');
 
-const parseFile = (filePath, fileName, recordName) => {
+const parseFile = (filePath, fileName, recordName, filesLength, done) => {
   let source = fs.createReadStream(filePath);
   
   let linesRead = 0;
@@ -40,6 +40,7 @@ const parseFile = (filePath, fileName, recordName) => {
           console.log(err);
         }
         console.log('ns inventory added to db.');
+        done();
       });
     } else if (recordName === 'cainventory') {
       cadb.insert(output, (err) => {
@@ -47,6 +48,7 @@ const parseFile = (filePath, fileName, recordName) => {
           console.log(err);
         }
         console.log('ca inventory added to db.');
+        done();
       });
     } else if (recordName === 'newreceipts') {
       receiptdb.insert(output, (err) => {
@@ -54,6 +56,7 @@ const parseFile = (filePath, fileName, recordName) => {
           console.log(err);
         }
         console.log('new receipts added to db.');
+        done();
       });
     }
   });
