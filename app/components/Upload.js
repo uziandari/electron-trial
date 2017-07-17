@@ -10,14 +10,14 @@ import {red500} from 'material-ui/styles/colors';
 import ContentAddCircleOutline from '../../node_modules/material-ui/svg-icons/content/add-circle-outline';
 import ActionCheckCircle from '../../node_modules/material-ui/svg-icons/action/check-circle';
 
-import Loading from '../components/Loading';
-import LoadingComplete from '../components/LoadingComplete';
+import ReportsPage from '../containers/ReportsPage';
+import Loading from './Loading';
+import LoadingComplete from './LoadingComplete';
 
 //database
-import { nsdb, cadb, receiptdb } from '../database';
+import { nsdb, cadb, receiptdb, relistdb, removesdb } from '../database';
 
 //utilities import
-//import parseFile from '../utilities/parseFile';
 import determineFile from '../utilities/determineFile';
 
 import fs from 'fs';
@@ -37,7 +37,9 @@ export default class Upload extends Component {
       fileMatch: {
         NewReceiptsSearch: 'New Receipts',
         CurrentInventoryResults: 'NS Inventory',
-        InventoryExport: 'CA Inventory'
+        InventoryExport: 'CA Inventory',
+        relist: 'To Relist',
+        removes: 'To Remove'
       },
       filesUploading: false,
       filesUploaded: false
@@ -120,30 +122,6 @@ export default class Upload extends Component {
     }
   }
 
-  //find <9
-  handleFind(event) {
-    let item = []
-    cadb.find({quantityAvailable: {$lt: 10, $gt: 0}, $not: {flag: {$regex: /briantest|inline|final/i} }}, (err, docs) => {
-      docs.forEach((doc) => {
-        let completeSku = {};
-        nsdb.find({sku: doc.sku}, (err, res) => {
-          if (res.length === 1) {
-            completeSku = Object.assign(doc, ...res);
-          }
-        receiptdb.find({sku: doc.sku}, (err, res) => {
-          if (res) {
-            completeSku = Object.assign(doc, ...res);
-          }
-          if (!completeSku.hasOwnProperty('receiptDate'))
-            item.push(completeSku);
-          });
-        });
-        
-      });
-      console.log(item);
-    });        
-  }
-
   render() {
 
     const filesCheck = Object.keys(this.state.fileMatch).map((key) => {
@@ -188,11 +166,7 @@ export default class Upload extends Component {
             />
           </MuiThemeProvider>
 
-          <MuiThemeProvider>
-            <RaisedButton label="DB" primary={true} style={styles.button}
-              onClick={(event) => this.handleFind(event)}
-            />
-          </MuiThemeProvider>
+          <Link to="/reports">Reports</Link>
 
           {
             (this.state.filesUploading) ? 
@@ -294,8 +268,23 @@ const parseFile = (filePath, fileName, recordName, done) => {
         console.log('new receipts added to db.');
         done();
       });
+    } else if (recordName === 'torelist') {
+      relistdb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('relists added to db.');
+        done();
+      });
+    } else if (recordName === 'toremove') {
+      removesdb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('removes added to db.');
+        done();
+      });
     }
-    
   });
 
   source.pipe(parser);

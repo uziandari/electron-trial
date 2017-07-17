@@ -38,8 +38,13 @@ const buildSchema = (record, recordName) => {
         parentSku: record['Variation Parent SKU'],
         updatedAt: Date.now() 
       });
+
     default:
-      return null;
+      //relist and removes files
+      return ({
+        sku: record['Sku'],
+        updatedAt: Date.now()
+      });
   }
 }
 

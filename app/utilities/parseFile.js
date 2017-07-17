@@ -6,9 +6,10 @@ const fileFilter = require('./fileFilter');
 const buildSchema = require('./buildSchema');
 
 //database
-const { nsdb, cadb, receiptdb } =  require('../database');
+const { nsdb, cadb, receiptdb, relistdb, removesdb } =  require('../database');
 
 const parseFile = (filePath, fileName, recordName, filesLength, done) => {
+  
   let source = fs.createReadStream(filePath);
   
   let linesRead = 0;
@@ -27,7 +28,7 @@ const parseFile = (filePath, fileName, recordName, filesLength, done) => {
     while (record = parser.read()) {
       linesRead++;
       const recordSchema = buildSchema(record, recordName)
-      output.push(recordSchema)   
+      output.push(recordSchema)
     }
   });
 
@@ -56,6 +57,22 @@ const parseFile = (filePath, fileName, recordName, filesLength, done) => {
           console.log(err);
         }
         console.log('new receipts added to db.');
+        done();
+      });
+    } else if (recordName === 'torelist') {
+      relistdb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('relists added to db.');
+        done();
+      });
+    } else if (recordName === 'toremove') {
+      removesdb.insert(output, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        console.log('removes added to db.');
         done();
       });
     }
