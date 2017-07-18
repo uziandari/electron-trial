@@ -5,13 +5,13 @@ import App from './containers/App';
 
 //containers
 import HomePage from './containers/HomePage';
-import UploadPage from './containers/UploadPage';
+import Upload from './containers/Upload';
 import ReportsPage from './containers/ReportsPage';
 
 export default () => (
   <App>
     <Switch>
-      <Route path="/upload" component={UploadPage} />
+      <Route path="/upload" component={Upload} />
       <Route path="/reports" component={ReportsPage} />
       <Route path="/" component={HomePage} />
     </Switch>
