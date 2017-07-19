@@ -176,13 +176,13 @@ export default class Upload extends Component {
           </MuiThemeProvider>
           </div>
         </div>
-        <div className='upload-status'>
+        <div className='upload-status' style={styles.uploadStatus}>
           {
             (this.state.filesUploading) ? 
-              <div style={styles.divStyle}>
+              <div>
                 <Loading />
               </div> : (this.state.filesUploaded) ?
-              <div style={styles.divStyle}>
+              <div>
                 <LoadingComplete />
               </div> : null
           }
@@ -204,6 +204,12 @@ const styles = {
   },
   dropContainer: {
     display: 'flex',
+  },
+  uploadStatus: {
+    marginTop: 25,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'    
   },
   subtitle: {
     alignSelf: 'center',
