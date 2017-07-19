@@ -8,7 +8,7 @@ export default class Navigation extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      index: 0,
+      index: 0
     };
   }
 
@@ -28,11 +28,11 @@ export default class Navigation extends Component {
             tabItemContainerStyle={styles.navbar}
             inkBarStyle={styles.inkBar}
           >
-            <Tab label="Home" value={0} containerElement={<Link to="/"/>}>
+            <Tab style={styles.tabLabel} label="Home" value={0} containerElement={<Link to="/"/>}>
             </Tab>
-            <Tab label="Upload" value={1} containerElement={<Link to="/upload"/>}>
+            <Tab style={styles.tabLabel} label="Upload" value={1} containerElement={<Link to="/upload"/>}>
             </Tab>
-            <Tab label="Reports" value={2} containerElement={<Link to="/reports"/>}>
+            <Tab style={styles.tabLabel} label="Reports" value={2} containerElement={<Link to="/reports"/>}>
             </Tab>
           </Tabs>
         </MuiThemeProvider>
@@ -50,15 +50,13 @@ const styles = {
     color: 'white',
   },
   inkBar: {
-    backgroundColor: '#A5D6A7',
-  },
-  headline: {
-    fontSize: 24,
-    paddingTop: 16,
-    marginBottom: 12,
-    fontWeight: 400,
+    backgroundColor: '#61efa7',
   },
   slide: {
     padding: 30,
+  },
+  tabLabel: {
+    color: '#fff',
+    fontFamily: 'Maven Pro, Arial, sans-serif',
   }
 };

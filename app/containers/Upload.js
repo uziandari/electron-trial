@@ -4,11 +4,18 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Dropzone from 'react-dropzone';
 import RaisedButton from 'material-ui/RaisedButton';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-import IconButton from 'material-ui/IconButton';
-import ContentClear from 'material-ui/svg-icons/content/clear';
-import {red500} from 'material-ui/styles/colors';
 import ContentAddCircleOutline from '../../node_modules/material-ui/svg-icons/content/add-circle-outline';
 import ActionCheckCircle from '../../node_modules/material-ui/svg-icons/action/check-circle';
+import {List, ListItem} from 'material-ui/List';
+import Checkbox from 'material-ui/Checkbox';
+import {
+  Table,
+  TableBody,
+  TableHeader,
+  TableHeaderColumn,
+  TableRow,
+  TableRowColumn,
+} from 'material-ui/Table';
 
 import ReportsPage from './/ReportsPage';
 import Loading from '../components/Loading';
@@ -35,9 +42,9 @@ export default class Upload extends Component {
       filesToBeSent: [],
       rejectedFiles: [],
       fileMatch: {
-        NewReceiptsSearch: 'New Receipts',
         CurrentInventoryResults: 'NS Inventory',
         InventoryExport: 'CA Inventory',
+        NewReceiptsSearch: 'New Receipts',
         relist: 'To Relist',
         removes: 'To Remove'
       },
@@ -124,32 +131,27 @@ export default class Upload extends Component {
 
   render() {
 
-    const filesCheck = Object.keys(this.state.fileMatch).map((key) => {
-        return <li key={key}>{this.state.fileMatch[key]}
-          {(this.state.filesPreview.indexOf(this.state.fileMatch[key]) > -1) ? 
-          <span>
-          <MuiThemeProvider>
-            <ActionCheckCircle />
-          </MuiThemeProvider>
-          <MuiThemeProvider>
-            <IconButton tooltip="Remove File" onClick={() => this.deleteElement(this.state.filesPreview.indexOf(this.state.fileMatch[key]))} >
-              <ContentClear color={red500} />
-            </IconButton>  
-          </MuiThemeProvider>
-          </span> :
-          null
-          }
-        </li>
+    const filesList = Object.keys(this.state.fileMatch).map((key) => {
+      return <ListItem key={key} primaryText={this.state.fileMatch[key]} style={styles.filesListStyle} 
+                        leftIcon={<Checkbox checked={(this.state.filesPreview.indexOf(this.state.fileMatch[key]) > -1)}
+                                  onCheck={() => this.deleteElement(this.state.filesPreview.indexOf(this.state.fileMatch[key]))}
+                                  iconStyle={{fill: '#61efa7'}}
+                                  />} 
+        />
     });
 
     return (
       <div className="upload">
-        <MuiThemeProvider>
-          <div>
-            {/*appbar*/}
+        <div className='drop-container' style={styles.dropContainer}>
+          <div className='files-list' style={styles.fileList}>
+            <h3 style={styles.subtitle}>Uploads</h3>
+            <hr style={{width: '80%'}}/>
+            <MuiThemeProvider>
+              <List>
+                {filesList}
+              </List>
+            </MuiThemeProvider>
           </div>
-        </MuiThemeProvider>
-        <center>
           <div className='drop-area' style={styles.dropArea}>
             <Dropzone 
               accept=".txt, .csv, text/plain, application/vnd.ms-excel"
@@ -159,15 +161,22 @@ export default class Upload extends Component {
                 Drop files here or click to select files.
               </div>
             </Dropzone>
-          </div>
+          
           <MuiThemeProvider>
-            <RaisedButton label="Upload Files" primary={true} disabled={this.state.filesToBeSent.length === 0 ? true : false } style={styles.button}
-              onClick={(event) => this.handleClick(event)}
+            <RaisedButton label="Upload Files" 
+                          disabled={this.state.filesToBeSent.length === 0 ? true : false }
+                          disabledBackgroundColor='rgba(0, 10, 25, 0.1)'
+                          disabledLabelColor='rgba(0, 10, 25, 0.5)'
+                          style={styles.loadButton}
+                          labelColor='#61efa7'
+                          labelStyle={{fontFamily: 'Open Sans, Arial, sans-serif'}}
+                          backgroundColor='rgba(0, 10, 25, 0.5)'
+                          onClick={(event) => this.handleClick(event)}
             />
           </MuiThemeProvider>
-
-          <Link to="/reports">Reports</Link>
-
+          </div>
+        </div>
+        <div className='upload-status'>
           {
             (this.state.filesUploading) ? 
               <div style={styles.divStyle}>
@@ -177,12 +186,6 @@ export default class Upload extends Component {
                 <LoadingComplete />
               </div> : null
           }
-        </center>
-        <div className='files-grid'>
-          <h3>Uploads</h3>
-          <ul>
-            {filesCheck}
-          </ul>
         </div>
       </div>
     )
@@ -191,30 +194,46 @@ export default class Upload extends Component {
 
 const styles = {
   dropzoneStyle: {
-    width: '80%',
+    width: '90%',
     height: '100%',
-    border: '1px groove rgb(232, 232, 232)',
+    border: '1px groove #61efa7',
+    marginRight: '5%',
     display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  dropContainer: {
+    display: 'flex',
+  },
+  subtitle: {
+    alignSelf: 'center',
+    fontFamily: 'Maven Pro, Arial, sans-serif'
+  },
+  fileList: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+    display: 'flex',
+    justifyContent: 'flex-start',
+    flexDirection: 'column'
   },
   dropArea: {
-    width: '100vw',
-    height: 240
-  },
-  divStyle: {
-    margin: 15
-  },
-  button: {
-    margin: 15
+    height: 360,
+    flex: 2,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column'
   },
   filesListStyle: {
-    marginTop: 15
+    color: '#fff',
+    fontFamily: 'Open Sans, Arial, sans-serif'
   },
-  list: {
-    listStyle: 'none',
-    margin: 0
+  loadButton: {
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    marginTop: 10,
+    border: '1px solid rgba(0, 0, 0, 0.4)',
+    borderRadius: 4,
+    bottomBorderColor: '1px solid rgba(0, 0, 0, 0.5)',
+    boxShadow: '0 5px 12px -2px rgba(0, 0, 0, 0.3)',
   }
 };
 

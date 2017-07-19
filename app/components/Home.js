@@ -21,10 +21,9 @@ const styles = {
     textAlign: 'center'
   },
   title: {
-    fontSize: '5rem'
-  },
-  link: {
-    fontSize: '1.4rem'
+    fontSize: '5rem',
+    fontWeight: 400,
+    letterSpacing: '-0.025rem'
   }
 }
 
