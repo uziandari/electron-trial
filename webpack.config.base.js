@@ -7,7 +7,13 @@ import webpack from 'webpack';
 import { dependencies as externals } from './app/package.json';
 
 export default {
-  externals: Object.keys(externals || {}),
+  //externals: Object.keys(externals || {}),
+
+  node: {fs: 'empty'},
+  externals: [
+    {'./cptable': 'var cptable'},
+    {'./jszip': 'jszip'}
+  ],
 
   module: {
     rules: [{

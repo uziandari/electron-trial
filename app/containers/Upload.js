@@ -8,6 +8,7 @@ import ContentAddCircleOutline from '../../node_modules/material-ui/svg-icons/co
 import ActionCheckCircle from '../../node_modules/material-ui/svg-icons/action/check-circle';
 import {List, ListItem} from 'material-ui/List';
 import Checkbox from 'material-ui/Checkbox';
+import ActionInfo from 'material-ui/svg-icons/action/info';
 import {
   Table,
   TableBody,
@@ -17,7 +18,7 @@ import {
   TableRowColumn,
 } from 'material-ui/Table';
 
-import ReportsPage from './/ReportsPage';
+import ReportsPage from './ReportsPage';
 import Loading from '../components/Loading';
 import LoadingComplete from '../components/LoadingComplete';
 
@@ -137,6 +138,9 @@ export default class Upload extends Component {
                                   onCheck={() => this.deleteElement(this.state.filesPreview.indexOf(this.state.fileMatch[key]))}
                                   iconStyle={{fill: '#61efa7'}}
                                   />} 
+                        rightIcon={<ActionInfo 
+                          style={{fill: 'rgba(0, 10, 25, 0.4)'}}
+                        />}
         />
     });
 
@@ -187,6 +191,7 @@ export default class Upload extends Component {
               </div> : null
           }
         </div>
+        <ReportsPage />
       </div>
     )
   }

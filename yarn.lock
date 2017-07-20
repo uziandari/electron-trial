@@ -94,6 +94,14 @@ acorn@^5.0.0, acorn@^5.0.1, acorn@^5.0.3:
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.0.3.tgz#c460df08491463f028ccb82eab3730bf01087b3d"
 
+adler-32@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/adler-32/-/adler-32-1.0.0.tgz#28728a71756f629666dd1653cd80793a9df18651"
+  dependencies:
+    concat-stream ""
+    exit-on-epipe ""
+    printj ""
+
 ajv-keywords@^1.0.0:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-1.5.1.tgz#314dd0a4b3368fad3dfcdc54ede6171b886daf3c"
@@ -1760,6 +1768,12 @@ center-align@^0.1.1:
     align-text "^0.1.3"
     lazy-cache "^1.0.3"
 
+cfb@~0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/cfb/-/cfb-0.11.1.tgz#a96db8f272a6c3fb99dbbb23ef41223f48be1ea7"
+  dependencies:
+    commander ""
+
 chain-function@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/chain-function/-/chain-function-1.0.0.tgz#0d4ab37e7e18ead0bdc47b920764118ce58733dc"
@@ -1946,6 +1960,15 @@ code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
 
+codepage@~1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/codepage/-/codepage-1.9.0.tgz#6cc6d2372bea8445cfd3ec6bf5f8d864facfae1a"
+  dependencies:
+    commander ""
+    concat-stream ""
+    exit-on-epipe ""
+    voc ""
+
 color-convert@^1.0.0, color-convert@^1.3.0:
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/color-convert/-/color-convert-1.9.0.tgz#1accf97dd739b983bf994d56fec8f95853641b7a"
@@ -2001,6 +2024,10 @@ colormin@^1.0.5:
     css-color-names "0.0.4"
     has "^1.0.1"
 
+colors@0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/colors/-/colors-0.6.2.tgz#2423fe6678ac0c5dae8852e5d0e5be08c997abcc"
+
 colors@^1.1.2, colors@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.1.2.tgz#168a4701756b6a7f51a12ce0c97bfa28c084ed63"
@@ -2011,15 +2038,15 @@ combined-stream@^1.0.5, combined-stream@~1.0.5:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@2.6.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/commander/-/commander-2.6.0.tgz#9df7e52fb2a0cb0fb89058ee80c3104225f37e1d"
-
-commander@2.9.x, commander@^2.9.0, commander@~2.9.0:
+commander@, commander@2.9.x, commander@^2.9.0, commander@~2.9.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.9.0.tgz#9c99094176e12240cb22d6c5146098400fe0f7d4"
   dependencies:
     graceful-readlink ">= 1.0.0"
+
+commander@2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-2.6.0.tgz#9df7e52fb2a0cb0fb89058ee80c3104225f37e1d"
 
 commondir@^1.0.1:
   version "1.0.1"
@@ -2059,7 +2086,7 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
-concat-stream@1.6.0, concat-stream@^1.5.2:
+concat-stream@, concat-stream@1.6.0, concat-stream@^1.5.2:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/concat-stream/-/concat-stream-1.6.0.tgz#0aac662fd52be78964d5532f694784e70110acf7"
   dependencies:
@@ -2160,6 +2187,13 @@ cosmiconfig@^2.1.1:
     os-homedir "^1.0.1"
     parse-json "^2.2.0"
     require-from-string "^1.1.0"
+
+crc-32@~1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/crc-32/-/crc-32-1.0.2.tgz#09507984ee9bcce3bd1b8861f0de8ab10ae8187d"
+  dependencies:
+    exit-on-epipe ""
+    printj ""
 
 crc32-stream@^2.0.0:
   version "2.0.0"
@@ -2951,9 +2985,9 @@ electron-to-chromium@^1.2.7, electron-to-chromium@^1.3.11:
   version "1.3.14"
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.14.tgz#64af0f9efd3c3c6acd57d71f83b49ca7ee9c4b43"
 
-electron@^1.6.10:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-1.7.3.tgz#839cab0a0598835a100dceede215988ba99c325b"
+electron@^1.6.11:
+  version "1.6.11"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-1.6.11.tgz#be79c0ebdcefedb5bf28117409800fa53baceffa"
   dependencies:
     "@types/node" "^7.0.18"
     electron-download "^3.0.1"
@@ -3456,6 +3490,10 @@ exit-hook@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/exit-hook/-/exit-hook-1.1.1.tgz#f05ca233b48c05d54fff07765df8507e95c02ff8"
 
+exit-on-epipe@, exit-on-epipe@~1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/exit-on-epipe/-/exit-on-epipe-1.0.0.tgz#f6e0579c8214d33a08109fd6e2e5c1dbc70463fc"
+
 expand-brackets@^0.1.4:
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/expand-brackets/-/expand-brackets-0.1.5.tgz#df07284e342a807cd733ac5af72411e581d1177b"
@@ -3675,6 +3713,10 @@ file-loader@^0.11.1:
   dependencies:
     loader-utils "^1.0.2"
 
+file-saver@^1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-1.3.3.tgz#cdd4c44d3aa264eac2f68ec165bc791c34af1232"
+
 filename-regex@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/filename-regex/-/filename-regex-2.0.1.tgz#c1c4b9bee3e09725ddb106b75c1e301fe2f18b26"
@@ -3831,6 +3873,12 @@ formatio@1.2.0:
 forwarded@~0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.1.0.tgz#19ef9874c4ae1c297bcf078fde63a09b66a84363"
+
+frac@~1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/frac/-/frac-1.0.6.tgz#9a0dfc23956852a8b320623bebcf1be9ea048229"
+  dependencies:
+    voc ""
 
 fresh@0.5.0:
   version "0.5.0"
@@ -6937,6 +6985,10 @@ pretty-format@^20.0.3:
     ansi-regex "^2.1.1"
     ansi-styles "^3.0.0"
 
+printj@:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/printj/-/printj-1.0.2.tgz#ecb2ad8b8fdf721fbee039846c67a81eb9e4c249"
+
 private@^0.1.6, private@~0.1.5:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/private/-/private-0.1.7.tgz#68ce5e8a1ef0a23bb570cc28537b5332aba63ef1"
@@ -7080,6 +7132,10 @@ react-addons-test-utils@^15.6.0:
   version "15.6.0"
   resolved "https://registry.yarnpkg.com/react-addons-test-utils/-/react-addons-test-utils-15.6.0.tgz#062d36117fe8d18f3ba5e06eb33383b0b85ea5b9"
 
+react-csv@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/react-csv/-/react-csv-1.0.8.tgz#92bacdb5edbc52cd2ed50f31bbd1d946e8e32acf"
+
 react-deep-force-update@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/react-deep-force-update/-/react-deep-force-update-1.0.1.tgz#f911b5be1d2a6fe387507dd6e9a767aa2924b4c7"
@@ -7112,6 +7168,13 @@ react-event-listener@^0.4.5:
     fbjs "^0.8.4"
     prop-types "^15.5.4"
     warning "^3.0.0"
+
+react-excel-workbook@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/react-excel-workbook/-/react-excel-workbook-0.0.4.tgz#a7f5721c6920310dcb0d77b648c2d63a57cc6612"
+  dependencies:
+    file-saver "^1.3.3"
+    xlsx "^0.10.3"
 
 react-hot-loader@3.0.0-beta.6:
   version "3.0.0-beta.6"
@@ -8028,6 +8091,14 @@ sprintf-js@~1.0.2:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
 
+ssf@~0.9.4:
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/ssf/-/ssf-0.9.4.tgz#8e57a98c19dbbf1edd53f0f8c9e7fd524b0f6c9c"
+  dependencies:
+    colors "0.6.2"
+    frac "~1.0.6"
+    voc ""
+
 sshpk@^1.7.0:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/sshpk/-/sshpk-1.13.1.tgz#512df6da6287144316dc4c18fe1cf1d940739be3"
@@ -8836,6 +8907,10 @@ vm-browserify@0.0.4:
   dependencies:
     indexof "0.0.1"
 
+voc@:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/voc/-/voc-0.5.0.tgz#be6ca7c76e4a57d930cc80f6b31fbd80ca86045c"
+
 walkdir@^0.0.11:
   version "0.0.11"
   resolved "https://registry.yarnpkg.com/walkdir/-/walkdir-0.0.11.tgz#a16d025eb931bd03b52f308caed0f40fcebe9532"
@@ -9123,6 +9198,18 @@ ws@^2.3.1:
 xdg-basedir@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/xdg-basedir/-/xdg-basedir-3.0.0.tgz#496b2cc109eca8dbacfe2dc72b603c17c5870ad4"
+
+xlsx@^0.10.3:
+  version "0.10.8"
+  resolved "https://registry.yarnpkg.com/xlsx/-/xlsx-0.10.8.tgz#0a6b66bc0c5d1738665ea28f0246f3bbf6411502"
+  dependencies:
+    adler-32 "~1.0.0"
+    cfb "~0.11.1"
+    codepage "~1.9.0"
+    commander "~2.9.0"
+    crc-32 "~1.0.2"
+    exit-on-epipe "~1.0.0"
+    ssf "~0.9.4"
 
 xml-char-classes@^1.0.0:
   version "1.0.0"
