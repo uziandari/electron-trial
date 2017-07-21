@@ -11,7 +11,10 @@ export default class ReportsPage extends Component {
     this.state = {
       isLoading: true,
       lessNine: [],
-      alerts: []
+      alerts: [],
+      delist: [],
+      relist: [],
+      relistPushed: []
     }
   }
 
@@ -48,15 +51,24 @@ export default class ReportsPage extends Component {
     cadb.find({quantityAvailable: 0, $not: {flag: {$regex: /briantest|absolute|recount/i} }}, (err, docs) => {
       docs.forEach((doc) => {
         let completeSku = {};
-        nsdb.find({sku: doc.sku, quantity: {$gt: 0}, $not: {bin: {$regex: /NA|dropship|- none -/i} }}, (err, res) => {
+        nsdb.find({sku: doc.sku, quantity: {$gt: 0}, $not: {bin: {$regex: /NA|office|dropship|- none -/i} }}, (err, res) => {
           if (res.length === 1) {
             completeSku = Object.assign(doc, ...res);
             receiptdb.find({sku: doc.sku}, (err, res) => {
               if (res) {
                 completeSku = Object.assign(doc, ...res);
               }
-              if (!completeSku.hasOwnProperty('receiptDate') && completeSku.hasOwnProperty('invLocation')) {
-                item.push(completeSku);
+              if (
+                !completeSku.hasOwnProperty('receiptDate') && 
+                completeSku.hasOwnProperty('invLocation') &&
+                completeSku.quantity > completeSku.committed * 2 &&
+                completeSku.quantity > completeSku.pendingCheckout + completeSku.pendingPayment
+                ) {
+                  removesdb.find({sku: doc.sku}, (err, res) => {
+                    if (res.length === 0) { //do not include in item array
+                      item.push(completeSku);
+                    } 
+                  });
               }  
             });
           }
@@ -68,9 +80,34 @@ export default class ReportsPage extends Component {
     });        
   }
 
+  findDelist() {
+    let item = []
+    cadb.find({$not: {flag: {$regex: /briantest|absolute|recount/i} }}, (err, docs) => {
+      docs.forEach((doc) => {
+        let completeSku = {};
+        nsdb.find({sku: doc.sku, $not: {bin: {$regex: /na|- None -|office|dropship/i} }}, (err, res) => {
+          if (res.length === 1) {
+            completeSku = Object.assign(doc, ...res);
+            removesdb.find({sku: doc.sku}, (err, res) => {
+              if (res.length === 0) { //do not include in item array
+                if (completeSku.hasOwnProperty('invLocation') && completeSku.quantity === completeSku.committed) {
+                  item.push(completeSku)      
+                } 
+              } 
+            });
+          }
+        });
+      });
+      this.setState({
+        delist: item
+      });  
+    });        
+  }
+
   componentDidMount() {
     this.findLessNine();
     this.findAlerts();
+    this.findDelist();
   }
 
   render() {
@@ -83,10 +120,10 @@ export default class ReportsPage extends Component {
             <Workbook.Sheet data={this.state.lessNine} name="Less9">
               <Workbook.Column label="Sku" value='sku' />
               <Workbook.Column label="Description" value="description"/>
-              <Workbook.Column label="Total" value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment}/>
+              <Workbook.Column label="Total" value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
               <Workbook.Column label="Available" value="quantityAvailable"/>
-              <Workbook.Column label="Pending" value={row => (row.pendingCheckout + row.pendingPayment)}/>
-              <Workbook.Column label="Committed" value={row => Math.max(row.committed, row.pendingShipment)}/>
+              <Workbook.Column label="Pending" value={row => (row.pendingCheckout + row.pendingPayment)} />
+              <Workbook.Column label="Committed" value={row => Math.max(row.committed, row.pendingShipment)} />
               <Workbook.Column label="Bin" value="bin"/>
               <Workbook.Column label="Backstock" value="backStock"/>
               <Workbook.Column label="UPC" value="upc"/>
@@ -95,14 +132,21 @@ export default class ReportsPage extends Component {
             <Workbook.Sheet data={this.state.alerts} name="Alerts">
               <Workbook.Column label="Sku" value='sku' />
               <Workbook.Column label="Description" value="description"/>
-              <Workbook.Column label="Total" value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment}/>
+              <Workbook.Column label="Total" value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
               <Workbook.Column label="Available" value="quantityAvailable"/>
-              <Workbook.Column label="Pending" value={row => (row.pendingCheckout + row.pendingPayment)}/>
-              <Workbook.Column label="Committed" value={row => Math.max(row.committed, row.pendingShipment)}/>
+              <Workbook.Column label="Pending" value={row => (row.pendingCheckout + row.pendingPayment)} />
+              <Workbook.Column label="Committed" value={row => Math.max(row.committed, row.pendingShipment)} />
               <Workbook.Column label="Bin" value="bin"/>
               <Workbook.Column label="Backstock" value="backStock"/>
               <Workbook.Column label="UPC" value="upc"/>
               <Workbook.Column label="Stock" value="quantity"/>
+              <Workbook.Column label="Inline" value="inline"/>
+            </Workbook.Sheet>
+            <Workbook.Sheet data={this.state.delist} name="Delist">
+              <Workbook.Column label="Sku" value='sku' />
+              <Workbook.Column label="Description" value="description"/>
+              <Workbook.Column label="NS Qty" value={row => row.quantity - row.committed} />
+              <Workbook.Column label="Inline" value="inline"/>
             </Workbook.Sheet>
           </Workbook>
         </div>

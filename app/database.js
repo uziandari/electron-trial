@@ -22,6 +22,18 @@ nsdb.ensureIndex({ fieldName: 'sku'}, (err) => {
   console.log(err)
 });
 
+nsdb.ensureIndex({ fieldName: 'bin'}, (err) => {
+  console.log(err)
+});
+
+nsdb.ensureIndex({ fieldName: 'quantity'}, (err) => {
+  console.log(err)
+});
+
+nsdb.ensureIndex({ fieldName: 'committed'}, (err) => {
+  console.log(err)
+});
+
 cadb.ensureIndex({ fieldName: 'sku', unique: true }, (err) => {
   console.log(err)
 });

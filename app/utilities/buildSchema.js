@@ -8,13 +8,14 @@ const buildSchema = (record, recordName) => {
       });
     case "nsinventory":
 
+      let parsedQuantity = parseInt(record['Location On Hand'], 10) || 0;
       let parsedCommitted = parseInt(record['Sum of Committed'], 10) || 0;
 
       return ({
         sku: record['Name'],
         description: record['Description'],
         invLocation: record['Inventory Location'],
-        quantity: parseInt(record['Location On Hand'], 10),
+        quantity: parsedQuantity,
         committed: parsedCommitted,
         upc: record['CustomUPC'],
         bin: record['Bin'],
