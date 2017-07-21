@@ -16,6 +16,7 @@ export default class ReportsPage extends Component {
       relist: [],
       relistPushed: []
     }
+    
   }
 
 
@@ -81,8 +82,8 @@ export default class ReportsPage extends Component {
   }
 
   findDelist() {
-    let item = []
     cadb.find({$not: {flag: {$regex: /briantest|absolute|recount/i} }}, (err, docs) => {
+      let item = [];
       docs.forEach((doc) => {
         let completeSku = {};
         nsdb.find({sku: doc.sku, $not: {bin: {$regex: /na|- None -|office|dropship/i} }}, (err, res) => {
@@ -91,7 +92,7 @@ export default class ReportsPage extends Component {
             removesdb.find({sku: doc.sku}, (err, res) => {
               if (res.length === 0) { //do not include in item array
                 if (completeSku.hasOwnProperty('invLocation') && completeSku.quantity === completeSku.committed) {
-                  item.push(completeSku)      
+                  item.push(completeSku);      
                 } 
               } 
             });
@@ -100,18 +101,66 @@ export default class ReportsPage extends Component {
       });
       this.setState({
         delist: item
-      });  
-    });        
+      });
+    });
   }
 
-  componentDidMount() {
-    this.findLessNine();
-    this.findAlerts();
-    this.findDelist();
+  findRelist() {
+    let today = new Date();
+    let dd = today.getDate();
+    let mm = today.getMonth() + 1;  // January is 0
+    let flagDate = mm + '/' + dd;
+    console.log(`today is ${flagDate}`);
+    let dateRegex = new RegExp('recount ' + flagDate, 'gi');
+
+    let item = []
+    cadb.find({flag: {$regex: dateRegex}, quantityAvailable: 0, pendingCheckout: 0, pendingPayment: 0, pendingShipment: 0 }, (err, docs) => {
+      docs.forEach((doc) => {
+        let completeSku = {};
+        nsdb.find({sku: doc.sku, committed: 0}, (err, res) => {
+          if (res.length === 1) {
+            completeSku = Object.assign(doc, ...res);
+            item.push(completeSku);
+          }
+        });
+      });   
+    });
+    relistdb.find({}, (err, docs) => {
+      docs.forEach((doc) => {
+        let completeSku = {};
+        nsdb.find({sku: doc.sku, committed: 0}, (err, res) => {
+          if (res.length === 1) {
+            completeSku = Object.assign(doc, ...res);
+            cadb.find({sku: doc.sku, quantityAvailable: 0, pendingCheckout: 0, pendingPayment: 0, pendingShipment: 0}, (err, res) => {
+              completeSku = Object.assign(doc, ...res);
+              item.push(completeSku);
+            });
+          }
+        });
+      });
+      this.setState({
+        relist: item
+      });   
+    });           
+  }
+
+  async componentDidMount() {
+    try {
+      let finishedLoading = async () => {
+        await this.findLessNine(); 
+        await this.findAlerts(); 
+        await this.findDelist(); 
+        await this.findRelist();
+      }
+
+      finishedLoading().then(() => console.log('done'))
+
+    } catch(err) {
+      console.log('error in querying db.', err)
+    }
   }
 
   render() {
-    
     return (
       <div className='reports-container' style={styles.reportsContainer}>
         <div>
@@ -146,6 +195,19 @@ export default class ReportsPage extends Component {
               <Workbook.Column label="Sku" value='sku' />
               <Workbook.Column label="Description" value="description"/>
               <Workbook.Column label="NS Qty" value={row => row.quantity - row.committed} />
+              <Workbook.Column label="Inline" value="inline"/>
+            </Workbook.Sheet>
+            <Workbook.Sheet data={this.state.relist} name="Relist">
+              <Workbook.Column label="Sku" value='sku' />
+              <Workbook.Column label="Description" value="description"/>
+              <Workbook.Column label="Total" value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
+              <Workbook.Column label="Available" value="quantityAvailable"/>
+              <Workbook.Column label="Pending" value={row => (row.pendingCheckout + row.pendingPayment)} />
+              <Workbook.Column label="Committed" value={row => Math.max(row.committed, row.pendingShipment)} />
+              <Workbook.Column label="Bin" value="bin"/>
+              <Workbook.Column label="Backstock" value="backStock"/>
+              <Workbook.Column label="UPC" value="upc"/>
+              <Workbook.Column label="Stock" value="quantity"/>
               <Workbook.Column label="Inline" value="inline"/>
             </Workbook.Sheet>
           </Workbook>
