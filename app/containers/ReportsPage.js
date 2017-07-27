@@ -3,7 +3,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Workbook from 'react-excel-workbook';
 
 
-import { nsdb, cadb, receiptdb, relistdb, removesdb } from '../database';
+import { inventorydb } from '../database';
 
 export default class ReportsPage extends Component {
   constructor(props) {
@@ -144,20 +144,8 @@ export default class ReportsPage extends Component {
     });           
   }
 
-  async componentDidMount() {
-    try {
-      let finishedLoading = async () => {
-        await this.findLessNine(); 
-        await this.findAlerts(); 
-        await this.findDelist(); 
-        await this.findRelist();
-      }
-
-      finishedLoading().then(() => console.log('done'))
-
-    } catch(err) {
-      console.log('error in querying db.', err)
-    }
+  componentDidMount() {
+    
   }
 
   render() {

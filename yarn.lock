@@ -5986,6 +5986,13 @@ ncname@1.0.x:
   dependencies:
     xml-char-classes "^1.0.0"
 
+nedb-promises@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/nedb-promises/-/nedb-promises-1.1.0.tgz#1b1375c5423348981773bc6c6d07a76263b9488d"
+  dependencies:
+    nedb "^1.8.0"
+    promise "^7.3.1"
+
 nedb@^1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/nedb/-/nedb-1.8.0.tgz#0e3502cd82c004d5355a43c9e55577bd7bd91d88"
@@ -7019,6 +7026,12 @@ progress@^1.1.8:
 promise@^7.1.1:
   version "7.1.1"
   resolved "https://registry.yarnpkg.com/promise/-/promise-7.1.1.tgz#489654c692616b8aa55b0724fa809bb7db49c5bf"
+  dependencies:
+    asap "~2.0.3"
+
+promise@^7.3.1:
+  version "7.3.1"
+  resolved "https://registry.yarnpkg.com/promise/-/promise-7.3.1.tgz#064b72602b18f90f29192b8b1bc418ffd1ebd3bf"
   dependencies:
     asap "~2.0.3"
 

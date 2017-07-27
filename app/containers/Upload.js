@@ -23,7 +23,7 @@ import Loading from '../components/Loading';
 import LoadingComplete from '../components/LoadingComplete';
 
 //database
-import { nsdb, cadb, receiptdb, relistdb, removesdb } from '../database';
+import { nsdb, cadb, receiptdb, relistdb, removesdb, inventorydb } from '../database';
 
 //utilities import
 import determineFile from '../utilities/determineFile';
@@ -32,7 +32,6 @@ import fs from 'fs';
 import Parse from 'csv-parse'
 import fileFilter from '../utilities/fileFilter';
 import buildSchema from '../utilities/buildSchema';
-
 
 injectTapEventPlugin();
 export default class Upload extends Component {
@@ -98,7 +97,12 @@ export default class Upload extends Component {
     });
   }
 
-  handleClick (event) {
+  async findStuffs(event) {
+    let results = await inventorydb.find({ invLocation: 'NORFOLK'})
+    console.log('results', results)
+  }
+
+  handleClick(event) {
     if (this.state.filesToBeSent.length > 0) {
       let filesArray = this.state.filesToBeSent;
       let filesRead = 0;
@@ -108,19 +112,28 @@ export default class Upload extends Component {
         filesUploading: true,
         filesUploaded: false
       });
-      
+
       function done() {
         filesRead++;
         console.log(`Files read: ${filesRead}`)
         if (filesRead === that.state.filesToBeSent.length) {
-           console.log("DONE!")
-           that.setState({
-             filesUploading: false,
-             filesUploaded: true,
-           })
+          cadb.find({}).then((result) => {
+            return Promise.all(result.map((doc) => {
+              return nsdb.find({sku: doc.sku}).then((res) => {
+                return Object.assign(doc, ...res);
+              });
+            }));
+          }).then((results) => {
+            inventorydb.insert(results)
+            console.log(`inserted ${results.length} items into the db`);
+            that.setState({
+              filesUploading: false,
+              filesUploaded: true
+            })
+          })
         }
-      }
-      
+      }      
+        
       for (let i in filesArray) {
         let recordName = this.state.filesPreview[i].toLowerCase().replace(/\s+/g, '');
         parseFile(filesArray[i].path, filesArray[i].name, recordName, done)
@@ -191,7 +204,8 @@ export default class Upload extends Component {
               </div> : null
           }
         </div>
-        <ReportsPage />
+        {/*reports page*/}
+        <button onClick={(event) => this.findStuffs()}>Find</button>
       </div>
     )
   }
@@ -275,45 +289,25 @@ const parseFile = (filePath, fileName, recordName, done) => {
 
   parser.on("end", () => {
     if (recordName === 'nsinventory') {
-      nsdb.insert(output, (err) => {
-        if (err) {
-          console.log(err);
-        }
-        console.log('ns inventory added to db.');
-        done();
-      });
+      nsdb.insert(output)
+        .then(() => done())
+        .catch((err) => console.log(err))
     } else if (recordName === 'cainventory') {
-      cadb.insert(output, (err) => {
-        if (err) {
-          console.log(err);
-        }
-        console.log('ca inventory added to db.');
-        done();
-      });
+      cadb.insert(output)
+        .then(() => done())
+        .catch((err) => console.log(err))
     } else if (recordName === 'newreceipts') {
-      receiptdb.insert(output, (err) => {
-        if (err) {
-          console.log(err);
-        }
-        console.log('new receipts added to db.');
-        done();
-      });
+      receiptdb.insert(output)
+        .then(() => done())
+        .catch((err) => console.log(err))
     } else if (recordName === 'torelist') {
-      relistdb.insert(output, (err) => {
-        if (err) {
-          console.log(err);
-        }
-        console.log('relists added to db.');
-        done();
-      });
+      relistdb.insert(output)
+        .then(() => done())
+        .catch((err) => console.log(err))
     } else if (recordName === 'toremove') {
-      removesdb.insert(output, (err) => {
-        if (err) {
-          console.log(err);
-        }
-        console.log('removes added to db.');
-        done();
-      });
+      removesdb.insert(output)
+        .then(() => done())
+        .catch((err) => console.log(err))
     }
   });
 
