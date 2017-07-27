@@ -5,6 +5,7 @@ const Datastore = require('nedb-promises');
 // const receiptdb = new Datastore({ filename: __dirname + '/db/newreceipts' });
 // const relistdb = new Datastore({ filename: __dirname + '/db/relist' });
 // const removesdb = new Datastore({ filename: __dirname + '/db/removes' });
+// const inventorydb = new Datastore({ filename: __dirname + '/db/inventory' });
 
 const nsdb = new Datastore();
 const cadb = new Datastore();
@@ -24,27 +25,7 @@ nsdb.ensureIndex({ fieldName: 'sku'}, (err) => {
   console.log(err)
 });
 
-nsdb.ensureIndex({ fieldName: 'bin'}, (err) => {
-  console.log(err)
-});
-
-nsdb.ensureIndex({ fieldName: 'quantity'}, (err) => {
-  console.log(err)
-});
-
-nsdb.ensureIndex({ fieldName: 'committed'}, (err) => {
-  console.log(err)
-});
-
 cadb.ensureIndex({ fieldName: 'sku', unique: true }, (err) => {
-  console.log(err)
-});
-
-cadb.ensureIndex({ fieldName: 'flag'}, (err) => {
-  console.log(err)
-});
-
-cadb.ensureIndex({ fieldName: 'quantityAvailable'}, (err) => {
   console.log(err)
 });
 
@@ -59,6 +40,20 @@ relistdb.ensureIndex({ fieldName: 'sku', unique: true }, (err) => {
 removesdb.ensureIndex({ fieldName: 'sku', unique: true }, (err) => {
   console.log(err)
 });
+
+//inventorydb indexes
+const fieldNames = [
+  'bin', 'committed', 'dropShip', 'flag', 'inline', 'invLocation',
+  'pendingCheckout', 'pendingPayment', 'pendingShipment', 'quantity', 'quantityAvailable', 
+  'relist', 'remove', 'sku'
+];
+
+fieldNames.forEach((field) => {
+  inventorydb.ensureIndex({ fieldName: field}, (err) => {
+    console.log(err)
+  });
+})
+//end inventorydb indexes
 
 module.exports = {
   nsdb,

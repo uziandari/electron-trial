@@ -39,9 +39,19 @@ const buildSchema = (record, recordName) => {
         parentSku: record['Variation Parent SKU'],
         updatedAt: Date.now() 
       });
-
+    case "torelist":
+      return ({
+        sku: record['Sku'],
+        relist: true,
+        updatedAt: Date.now() 
+      });
+    case "toremove":
+      return ({
+        sku: record['Sku'],
+        remove: true,
+        updatedAt: Date.now() 
+      });
     default:
-      //relist and removes files
       return ({
         sku: record['Sku'],
         updatedAt: Date.now()

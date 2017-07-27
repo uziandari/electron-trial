@@ -97,11 +97,6 @@ export default class Upload extends Component {
     });
   }
 
-  async findStuffs(event) {
-    let results = await inventorydb.find({ invLocation: 'NORFOLK'})
-    console.log('results', results)
-  }
-
   handleClick(event) {
     if (this.state.filesToBeSent.length > 0) {
       let filesArray = this.state.filesToBeSent;
@@ -117,13 +112,22 @@ export default class Upload extends Component {
         filesRead++;
         console.log(`Files read: ${filesRead}`)
         if (filesRead === that.state.filesToBeSent.length) {
-          cadb.find({}).then((result) => {
+          cadb.find({})
+          .then((result) => {
             return Promise.all(result.map((doc) => {
               return nsdb.find({sku: doc.sku}).then((res) => {
-                return Object.assign(doc, ...res);
+                return receiptdb.find({sku: doc.sku}).then((receipt) => {
+                  return removesdb.find({sku: doc.sku}).then((remove) => {
+                    return relistdb.find({sku: doc.sku}).then((relist) => {
+                      return Object.assign(doc, ...res, ...receipt, ...remove, ...relist);
+                    }) 
+                  })
+                })
               });
-            }));
-          }).then((results) => {
+            })
+          );
+          })
+          .then((results) => {
             inventorydb.insert(results)
             console.log(`inserted ${results.length} items into the db`);
             that.setState({
@@ -131,6 +135,7 @@ export default class Upload extends Component {
               filesUploaded: true
             })
           })
+          .catch((err) => console.log(err))
         }
       }      
         
@@ -205,7 +210,6 @@ export default class Upload extends Component {
           }
         </div>
         {/*reports page*/}
-        <button onClick={(event) => this.findStuffs()}>Find</button>
       </div>
     )
   }
