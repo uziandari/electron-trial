@@ -38,7 +38,7 @@ export default class ReportsPage extends Component {
   }
 
    async findAlerts() {
-    let bulkResults = await inventorydb.find({
+    let results = await inventorydb.find({
       $and: [
         {quantityAvailable: 0}, 
         {$not: {flag: {$regex: /briantest|absolute|recount/i}}},
@@ -48,15 +48,16 @@ export default class ReportsPage extends Component {
         {$not: {remove: true}},
         {invLocation: 'AUCTION'},
         {receiptDate: {$exists: false}},
-        {description: {$exists: true}} 
+        {description: {$exists: true}},
+        {$where: function() {return this.quantity > Math.max(this.committed, this.pendingShipment);}},
+        {$where: function() {return this.quantity !== this.pendingCheckout + this.pendingPayment;}},
 
-        //add pending catch
+        //pending catch
+        {$where: function() {return (this.quantity < 6 && this.quantity >= this.pendingCheckout + this.pendingPayment + Math.max(this.committed, this.pendingShipment) + 1) 
+          || (this.quantity > 5 && this.quantity >= this.pendingCheckout + this.pendingPayment + Math.max(this.committed, this.pendingShipment) + 2);}}
 
       ]
     }).sort({bin: 1});
-    let results = await bulkResults.filter((doc) => {
-      return doc.quantity > doc.committed && (doc.pendingCheckout + doc.pendingPayment) !== doc.quantity
-    });
     this.setState({
       alerts: results
     })

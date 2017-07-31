@@ -20,7 +20,6 @@ import {
 
 import ReportsPage from './ReportsPage';
 import Loading from '../components/Loading';
-import LoadingComplete from '../components/LoadingComplete';
 
 //database
 import { nsdb, cadb, receiptdb, relistdb, removesdb, inventorydb } from '../database';
@@ -48,8 +47,8 @@ export default class Upload extends Component {
         relist: 'To Relist',
         removes: 'To Remove'
       },
-      filesUploading: false,
-      filesUploaded: false,
+      filesUploading: 'notLoaded',
+      filesUploaded: 0
     }
   }
 
@@ -79,8 +78,6 @@ export default class Upload extends Component {
        
     this.setState({
       rejectedFiles,
-      filesUploading: false,
-      filesUploaded: false
     })
   }
 
@@ -91,9 +88,7 @@ export default class Upload extends Component {
       }),
       filesPreview: this.state.filesPreview.filter((event, i) => {
         return i !== index;
-      }),
-      filesUploading: false,
-      filesUploaded: false
+      })
     });
   }
 
@@ -104,12 +99,14 @@ export default class Upload extends Component {
       let that = this;
 
       this.setState({
-        filesUploading: true,
-        filesUploaded: false
+        filesUploading: 'filesUploading'
       });
 
       function done() {
         filesRead++;
+        that.setState({
+          filesUploaded: filesRead
+        });
         console.log(`Files read: ${filesRead}`)
         if (filesRead === that.state.filesToBeSent.length) {
           cadb.find({})
@@ -129,11 +126,12 @@ export default class Upload extends Component {
           })
           .then((results) => {
             inventorydb.insert(results)
-            console.log(`inserted ${results.length} items into the db`);
-            that.setState({
-              filesUploading: false,
-              filesUploaded: true
-            })
+              .then((results) => {
+                console.log(`inserted ${results.length} items into the db`)
+                return that.setState({
+                  filesUploading: 'uploadComplete'
+                });
+              });
           })
           .catch((err) => console.log(err))
         }
@@ -199,15 +197,7 @@ export default class Upload extends Component {
           </div>
         </div>
         <div className='upload-status' style={styles.uploadStatus}>
-          {
-            (this.state.filesUploading) ? 
-              <div>
-                <Loading />
-              </div> : (this.state.filesUploaded) ?
-              <div>
-                <LoadingComplete />
-              </div> : null
-          }
+          <Loading status={this.state.filesUploading} filesToUpload={this.state.filesToBeSent} filesUploaded={this.state.filesUploaded} />
         </div>
         {/*reports page*/}
       </div>
