@@ -9,7 +9,6 @@ export default class ReportsPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoading: true,
       lessNine: [],
       alerts: [],
       delist: [],
@@ -49,7 +48,7 @@ export default class ReportsPage extends Component {
         {invLocation: 'AUCTION'},
         {receiptDate: {$exists: false}},
         {description: {$exists: true}},
-        {$where: function() {return this.quantity > Math.max(this.committed, this.pendingShipment);}},
+        {$where: function() {return this.quantity > Math.max(this.committed, this.pendingShipment) * 2;}},
         {$where: function() {return this.quantity !== this.pendingCheckout + this.pendingPayment;}},
 
         //pending catch
@@ -121,7 +120,7 @@ export default class ReportsPage extends Component {
     })
   }
 
-  async loadReports() {
+  async componentDidMount() {
     let today = new Date();
     let dd = today.getDate();
     let mm = today.getMonth() + 1;  // January is 0
@@ -139,81 +138,72 @@ export default class ReportsPage extends Component {
 
   render() {
     return (
-      <div className='reports-container' style={styles.reportsContainer}>
-        <div>
-          <button onClick={() => this.loadReports()}>State</button>
-          <Workbook filename='files.xlsx' element={<button className='btn btn-lg btn-primary'>Download</button>}>
-            <Workbook.Sheet data={this.state.lessNine} name='Less9'>
-            <Workbook.Column label='Sku' value='sku' />
-            <Workbook.Column label='Description' value='description'/>
-            <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
-            <Workbook.Column label='Available' value='quantityAvailable'/>
-            <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
-            <Workbook.Column label='Committed' value={row => Math.max(row.committed, row.pendingShipment)} />
-            <Workbook.Column label='Bin' value='bin'/>
-            <Workbook.Column label='Backstock' value='backStock'/>
-            <Workbook.Column label='UPC' value='upc'/>
-            <Workbook.Column label='Stock' value='quantity'/>
-            </Workbook.Sheet>
-            <Workbook.Sheet data={this.state.alerts} name='Alerts'>
-              <Workbook.Column label='Sku' value='sku' />
-              <Workbook.Column label='Description' value='description'/>
-              <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
-              <Workbook.Column label='Available' value='quantityAvailable'/>
-              <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
-              <Workbook.Column label='Committed' value={row => Math.max(row.committed, row.pendingShipment)} />
-              <Workbook.Column label='Bin' value='bin'/>
-              <Workbook.Column label='Backstock' value='backStock'/>
-              <Workbook.Column label='UPC' value='upc'/>
-              <Workbook.Column label='Stock' value='quantity'/>
-              <Workbook.Column label='Inline' value='inline'/>
-            </Workbook.Sheet>
-            <Workbook.Sheet data={this.state.delist} name='Delist'>
-              <Workbook.Column label='Sku' value='sku' />
-              <Workbook.Column label='Description' value='description'/>
-              <Workbook.Column label='NS Qty' value={row => row.quantity - row.committed} />
-              <Workbook.Column label='Inline' value='inline'/>
-            </Workbook.Sheet>
-            <Workbook.Sheet data={this.state.relist} name='Relist'>
-              <Workbook.Column label='Sku' value='sku' />
-              <Workbook.Column label='Description' value='description'/>
-              <Workbook.Column label='Bin' value='bin'/>
-              <Workbook.Column label='Backstock' value='backStock'/>
-              <Workbook.Column label='UPC' value='upc'/>
-              <Workbook.Column label='Stock' value='quantity'/>
-              <Workbook.Column label='Inline' value='inline'/>
-              <Workbook.Column label='Flag' value='flag'/>
-              <Workbook.Column label='location' value='invLocation'/>
-            </Workbook.Sheet>
-            <Workbook.Sheet data={this.state.relistPushed} name='RelistToPush'>
-              <Workbook.Column label='Sku' value='sku' />
-              <Workbook.Column label='Description' value='description'/>
-              <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
-              <Workbook.Column label='Available' value='quantityAvailable'/>
-              <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
-              <Workbook.Column label='PendingShipment' value='pendingShipment'/>
-              <Workbook.Column label='Committed' value='committed'/>
-              <Workbook.Column label='Bin' value='bin'/>
-              <Workbook.Column label='Backstock' value='backStock'/>
-              <Workbook.Column label='UPC' value='upc'/>
-              <Workbook.Column label='Stock' value='quantity'/>
-              <Workbook.Column label='Inline' value='inline'/>
-              <Workbook.Column label='Flag' value='flag'/>
-              <Workbook.Column label='location' value='invLocation'/>
-             </Workbook.Sheet>
-           </Workbook>   
-        </div>
-      </div>
+    <Workbook filename='files.xlsx' element={<button className='downlaod-btn' style={styles.reportButton}>Download</button>}>
+      <Workbook.Sheet data={this.state.lessNine} name='Less9'>
+      <Workbook.Column label='Sku' value='sku' />
+      <Workbook.Column label='Description' value='description'/>
+      <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
+      <Workbook.Column label='Available' value='quantityAvailable'/>
+      <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
+      <Workbook.Column label='Committed' value={row => Math.max(row.committed, row.pendingShipment)} />
+      <Workbook.Column label='Bin' value='bin'/>
+      <Workbook.Column label='Backstock' value='backStock'/>
+      <Workbook.Column label='UPC' value='upc'/>
+      <Workbook.Column label='Stock' value='quantity'/>
+      </Workbook.Sheet>
+      <Workbook.Sheet data={this.state.alerts} name='Alerts'>
+        <Workbook.Column label='Sku' value='sku' />
+        <Workbook.Column label='Description' value='description'/>
+        <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
+        <Workbook.Column label='Available' value='quantityAvailable'/>
+        <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
+        <Workbook.Column label='Committed' value={row => Math.max(row.committed, row.pendingShipment)} />
+        <Workbook.Column label='Bin' value='bin'/>
+        <Workbook.Column label='Backstock' value='backStock'/>
+        <Workbook.Column label='UPC' value='upc'/>
+        <Workbook.Column label='Stock' value='quantity'/>
+        <Workbook.Column label='Inline' value='inline'/>
+      </Workbook.Sheet>
+      <Workbook.Sheet data={this.state.delist} name='Delist'>
+        <Workbook.Column label='Sku' value='sku' />
+        <Workbook.Column label='Description' value='description'/>
+        <Workbook.Column label='NS Qty' value={row => row.quantity - row.committed} />
+        <Workbook.Column label='Inline' value='inline'/>
+      </Workbook.Sheet>
+      <Workbook.Sheet data={this.state.relist} name='Relist'>
+        <Workbook.Column label='Sku' value='sku' />
+        <Workbook.Column label='Description' value='description'/>
+        <Workbook.Column label='Bin' value='bin'/>
+        <Workbook.Column label='Backstock' value='backStock'/>
+        <Workbook.Column label='UPC' value='upc'/>
+        <Workbook.Column label='Stock' value='quantity'/>
+        <Workbook.Column label='Inline' value='inline'/>
+        <Workbook.Column label='Flag' value='flag'/>
+        <Workbook.Column label='location' value='invLocation'/>
+      </Workbook.Sheet>
+      <Workbook.Sheet data={this.state.relistPushed} name='RelistToPush'>
+        <Workbook.Column label='Sku' value='sku' />
+        <Workbook.Column label='Description' value='description'/>
+        <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
+        <Workbook.Column label='Available' value='quantityAvailable'/>
+        <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
+        <Workbook.Column label='PendingShipment' value='pendingShipment'/>
+        <Workbook.Column label='Committed' value='committed'/>
+        <Workbook.Column label='Bin' value='bin'/>
+        <Workbook.Column label='Backstock' value='backStock'/>
+        <Workbook.Column label='UPC' value='upc'/>
+        <Workbook.Column label='Stock' value='quantity'/>
+        <Workbook.Column label='Inline' value='inline'/>
+        <Workbook.Column label='Flag' value='flag'/>
+        <Workbook.Column label='location' value='invLocation'/>
+        </Workbook.Sheet>
+      </Workbook>   
     );
   }
 }
 
 const styles = {
-  reportsContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
+
   reportButton: {
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
     marginTop: 10,

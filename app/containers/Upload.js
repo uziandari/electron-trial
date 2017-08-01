@@ -47,9 +47,26 @@ export default class Upload extends Component {
         relist: 'To Relist',
         removes: 'To Remove'
       },
-      filesUploading: 'notLoaded',
+      filesUploadingStatus: 'notLoaded',
       filesUploaded: 0
     }
+  }
+
+  componentWillUnmount() {
+    this.setState({
+      filesPreview: [],
+      filesToBeSent: [],
+      rejectedFiles: [],
+      fileMatch: {
+        CurrentInventoryResults: 'NS Inventory',
+        InventoryExport: 'CA Inventory',
+        NewReceiptsSearch: 'New Receipts',
+        relist: 'To Relist',
+        removes: 'To Remove'
+      },
+      filesUploadingStatus: 'notLoaded',
+      filesUploaded: 0
+    })
   }
 
   onDrop (acceptedFiles, rejectedFiles) {
@@ -99,7 +116,7 @@ export default class Upload extends Component {
       let that = this;
 
       this.setState({
-        filesUploading: 'filesUploading'
+        filesUploadingStatus: 'filesUploading'
       });
 
       function done() {
@@ -109,6 +126,9 @@ export default class Upload extends Component {
         });
         console.log(`Files read: ${filesRead}`)
         if (filesRead === that.state.filesToBeSent.length) {
+          that.setState({
+            filesUploadingStatus: 'uploadingToDatabase'
+          });
           cadb.find({})
           .then((result) => {
             return Promise.all(result.map((doc) => {
@@ -125,13 +145,15 @@ export default class Upload extends Component {
           );
           })
           .then((results) => {
-            inventorydb.insert(results)
+            inventorydb.remove({}, { multi: true }).then(() => {
+              inventorydb.insert(results)
               .then((results) => {
                 console.log(`inserted ${results.length} items into the db`)
                 return that.setState({
-                  filesUploading: 'uploadComplete'
+                  filesUploadingStatus: 'uploadComplete'
                 });
               });
+            }); 
           })
           .catch((err) => console.log(err))
         }
@@ -167,9 +189,21 @@ export default class Upload extends Component {
             <h3 style={styles.subtitle}>Uploads</h3>
             <hr style={{width: '80%'}}/>
             <MuiThemeProvider>
-              <List>
+              <List style={{width: '100%'}}>
                 {filesList}
               </List>
+            </MuiThemeProvider>
+            <MuiThemeProvider>
+            <RaisedButton label="Upload Files" 
+                          disabled={this.state.filesToBeSent.length === 0 ? true : false }
+                          disabledBackgroundColor='rgba(0, 10, 25, 0.1)'
+                          disabledLabelColor='rgba(0, 10, 25, 0.5)'
+                          style={styles.loadButton}
+                          labelColor='#61efa7'
+                          labelStyle={{fontFamily: 'Open Sans, Arial, sans-serif'}}
+                          backgroundColor='rgba(0, 10, 25, 0.5)'
+                          onClick={(event) => this.handleClick(event)}
+            />
             </MuiThemeProvider>
           </div>
           <div className='drop-area' style={styles.dropArea}>
@@ -181,25 +215,11 @@ export default class Upload extends Component {
                 Drop files here or click to select files.
               </div>
             </Dropzone>
-          
-          <MuiThemeProvider>
-            <RaisedButton label="Upload Files" 
-                          disabled={this.state.filesToBeSent.length === 0 ? true : false }
-                          disabledBackgroundColor='rgba(0, 10, 25, 0.1)'
-                          disabledLabelColor='rgba(0, 10, 25, 0.5)'
-                          style={styles.loadButton}
-                          labelColor='#61efa7'
-                          labelStyle={{fontFamily: 'Open Sans, Arial, sans-serif'}}
-                          backgroundColor='rgba(0, 10, 25, 0.5)'
-                          onClick={(event) => this.handleClick(event)}
-            />
-          </MuiThemeProvider>
           </div>
         </div>
         <div className='upload-status' style={styles.uploadStatus}>
-          <Loading status={this.state.filesUploading} filesToUpload={this.state.filesToBeSent} filesUploaded={this.state.filesUploaded} />
+          <Loading status={this.state.filesUploadingStatus} filesToUpload={this.state.filesToBeSent.length} filesUploaded={this.state.filesUploaded} />
         </div>
-        {/*reports page*/}
       </div>
     )
   }
@@ -232,6 +252,7 @@ const styles = {
     flex: 1,
     display: 'flex',
     justifyContent: 'flex-start',
+    alignItems: 'center',
     flexDirection: 'column'
   },
   dropArea: {
@@ -244,7 +265,7 @@ const styles = {
   },
   filesListStyle: {
     color: '#fff',
-    fontFamily: 'Open Sans, Arial, sans-serif'
+    fontFamily: 'Open Sans, Arial, sans-serif',
   },
   loadButton: {
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
@@ -283,25 +304,35 @@ const parseFile = (filePath, fileName, recordName, done) => {
 
   parser.on("end", () => {
     if (recordName === 'nsinventory') {
-      nsdb.insert(output)
+      nsdb.remove({}, { multi: true }).then(() => {
+        nsdb.insert(output)
         .then(() => done())
         .catch((err) => console.log(err))
+      })    
     } else if (recordName === 'cainventory') {
-      cadb.insert(output)
+      cadb.remove({}, { multi: true }).then(() => {
+        cadb.insert(output)
         .then(() => done())
         .catch((err) => console.log(err))
+      })    
     } else if (recordName === 'newreceipts') {
-      receiptdb.insert(output)
+      receiptdb.remove({}, { multi: true }).then(() => {
+        receiptdb.insert(output)
         .then(() => done())
         .catch((err) => console.log(err))
+      })    
     } else if (recordName === 'torelist') {
-      relistdb.insert(output)
+      relistdb.remove({}, { multi: true }).then(() => {
+        relistdb.insert(output)
         .then(() => done())
         .catch((err) => console.log(err))
+      })    
     } else if (recordName === 'toremove') {
-      removesdb.insert(output)
+      removesdb.remove({}, { multi: true }).then(() => {
+        removesdb.insert(output)
         .then(() => done())
         .catch((err) => console.log(err))
+      })    
     }
   });
 
