@@ -13,7 +13,8 @@ export default class ReportsPage extends Component {
       alerts: [],
       delist: [],
       relist: [],
-      relistPushed: []
+      relistPushed: [],
+      isLoading: true
     }
     
   }
@@ -133,12 +134,26 @@ export default class ReportsPage extends Component {
     await this.findDelist();
     await this.findRelist(dateRegex);
     await this.findRelistToPush(dateRegex);
+    this.setState({isLoading: !this.state.isLoading})
     console.log(this.state)
+  }
+
+  componentWillUnmount() {
+    this.setState({
+      lessNine: [],
+      alerts: [],
+      delist: [],
+      relist: [],
+      relistPushed: [],
+      isLoading: true
+    })
   }
 
   render() {
     return (
-    <Workbook filename='files.xlsx' element={<button className='downlaod-btn' style={styles.reportButton}>Download</button>}>
+    <Workbook filename='files.xlsx' element={<button className='downlaod-btn' style={styles.reportButton}>
+      {(this.state.isLoading) ? <span style={styles.btnSpan}>Loading Reports</span> : <span style={styles.btnSpan}>Download</span>}
+      </button>}>
       <Workbook.Sheet data={this.state.lessNine} name='Less9'>
       <Workbook.Column label='Sku' value='sku' />
       <Workbook.Column label='Description' value='description'/>
@@ -205,11 +220,29 @@ export default class ReportsPage extends Component {
 const styles = {
 
   reportButton: {
+    height: 36,
+    borderRadius: 2,
+    transition: 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
+    top: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.1)',
     marginTop: 10,
     border: '1px solid rgba(0, 0, 0, 0.4)',
     borderRadius: 4,
     bottomBorderColor: '1px solid rgba(0, 0, 0, 0.5)',
     boxShadow: '0 5px 12px -2px rgba(0, 0, 0, 0.3)'
+  },
+  btnSpan: {
+    position: 'relative',
+    opacity: 1,
+    fontSize: 14,
+    letterSpacing: 0,
+    textTransform: 'uppercase',
+    fontWeight: 500,
+    margin: 0,
+    userSelect: 'none',
+    paddingLeft: 16,
+    paddingRight: 16,
+    color: 'rgba(255, 145, 145)',
+    fontFamily: 'Open Sans, Arial, sans-serif'
   }
 }

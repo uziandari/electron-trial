@@ -220,6 +220,12 @@ export default class Upload extends Component {
         <div className='upload-status' style={styles.uploadStatus}>
           <Loading status={this.state.filesUploadingStatus} filesToUpload={this.state.filesToBeSent.length} filesUploaded={this.state.filesUploaded} />
         </div>
+        <div className='reports' style={{width: '100vw', textAlign: 'center'}}>
+          {
+            (this.state.filesUploadingStatus === 'uploadComplete') ?
+            <ReportsPage /> : null
+          }
+        </div>
       </div>
     )
   }
