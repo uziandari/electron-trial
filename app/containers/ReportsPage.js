@@ -14,8 +14,11 @@ export default class ReportsPage extends Component {
       delist: [],
       relist: [],
       relistPushed: [],
-      isLoading: true
+      isLoading: true,
+      value: ''
     }
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
     
   }
 
@@ -121,20 +124,21 @@ export default class ReportsPage extends Component {
     })
   }
 
-  async componentDidMount() {
+  async handleSubmit(event) {
+    event.preventDefault();
     let today = new Date();
     let dd = today.getDate();
     let mm = today.getMonth() + 1;  // January is 0
     let flagDate = mm + '/' + dd;
-    console.log(`today is ${flagDate}`);
     let dateRegex = new RegExp('recount ' + flagDate, 'gi');
-    
+    console.log(dateRegex)
+
+    await this.findRelist(dateRegex);
+    await this.findRelistToPush(dateRegex);
     await this.findLessNine();
     await this.findAlerts();
     await this.findDelist();
-    await this.findRelist(dateRegex);
-    await this.findRelistToPush(dateRegex);
-    this.setState({isLoading: !this.state.isLoading})
+    await this.setState({isLoading: !this.state.isLoading})
     console.log(this.state)
   }
 
@@ -148,9 +152,30 @@ export default class ReportsPage extends Component {
       isLoading: true
     })
   }
+  
+  handleChange(event) {
+    this.setState({value: event.target.value});
+  }
+
+  async handleFind(event) {
+    event.preventDefault();
+    console.log('state: ', this.state)
+    let results = await inventorydb.find({ sku: this.state.value });
+    console.log('results', results)
+  }
 
   render() {
     return (
+    <div>
+      <div className="input-sku">
+        <form onSubmit={this.handleSubmit}>
+          <label>
+            SKU:
+            <input type="text" value={this.state.skuSearch} onChange={this.handleChange} />
+          </label>
+          <input type="submit" value="Submit" />
+        </form>
+      </div>
     <Workbook filename='files.xlsx' element={<button className='downlaod-btn' style={styles.reportButton}>
       {(this.state.isLoading) ? <span style={styles.btnSpan}>Loading Reports</span> : <span style={styles.btnSpan}>Download</span>}
       </button>}>
@@ -212,7 +237,8 @@ export default class ReportsPage extends Component {
         <Workbook.Column label='Flag' value='flag'/>
         <Workbook.Column label='location' value='invLocation'/>
         </Workbook.Sheet>
-      </Workbook>   
+      </Workbook> 
+      </div>  
     );
   }
 }
