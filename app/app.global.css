@@ -38,3 +38,71 @@ a:hover {
   text-decoration: none;
   cursor: pointer;
 }
+
+
+.download-btn {
+  position: relative;
+
+  display: block;
+  margin: 30px auto;
+  height: 36px;
+  padding: 0;
+
+  overflow: hidden;
+
+  outline: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+  
+  background-color: rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  border-radius: 4;
+  color: #fff;
+  
+  transition: background-color .3s;
+}
+
+.download-btn:hover, .download-btn:focus {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.download-btn > * {
+  position: relative;
+}
+
+.download-btn span {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0px;
+  padding: 0 16px;
+  font-size: 14px;
+  font-family: 'Open Sans', Arial, sans-serif;
+}
+
+.download-btn:before {
+  content: "";
+  
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  
+  display: block;
+  width: 0;
+  padding-top: 0;
+    
+  border-radius: 100%;
+  
+  background-color: rgba(236, 240, 241, .3);
+  
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.download-btn:active:before {
+  width: 120%;
+  padding-top: 120%;
+  
+  transition: width .2s ease-out, padding-top .2s ease-out;
+}

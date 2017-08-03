@@ -14,12 +14,10 @@ export default class ReportsPage extends Component {
       delist: [],
       relist: [],
       relistPushed: [],
+      negatives: [],
       isLoading: true,
       value: ''
-    }
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    
+    }    
   }
 
   async findLessNine() {
@@ -84,57 +82,41 @@ export default class ReportsPage extends Component {
     })
   }
 
-  async findRelist(dateRegex) {
-    let results = await inventorydb.find({
-      $and: [
-        {$or: [
-          {relist: true},
-          {flag: {$regex: dateRegex}}
-        ]},
-        {quantityAvailable: 0},
-        {pendingCheckout: 0},
-        {pendingPayment: 0},
-        {pendingShipment: 0},
-        {committed: 0}
-      ]
-    }).sort({bin: 1});
+  async findRelist(flagDate) {
+    let databaseQuery = await inventorydb.find({}).sort({bin: 1});
+    let relistResults = await databaseQuery.filter((item) => {
+      return (
+        (item.relist === true && item.quantityAvailable === 0 && item.committed === 0 &&
+          item.pendingCheckout === 0 && item.pendingPayment === 0 && item.pendingShipment === 0) ||
+        (item.flag.indexOf('recount ' + flagDate) !== -1 && item.quantityAvailable === 0 && item.committed === 0 &&
+          item.pendingCheckout === 0 && item.pendingPayment === 0 && item.pendingShipment === 0)
+      );
+    });
+    let pushedResults = await databaseQuery.filter((item) => {
+      return (
+        (item.relist === true && (item.quantityAvailable !== 0 || item.committed !== 0 ||
+          item.pendingCheckout !== 0 || item.pendingPayment !== 0 || item.pendingShipment !== 0)) ||
+        (item.flag.indexOf('recount ' + flagDate) !== -1 && (item.quantityAvailable !== 0 || item.committed !== 0 ||
+          item.pendingCheckout !== 0 || item.pendingPayment !== 0 || item.pendingShipment !== 0))
+      );
+    });
+    let negativeResults = await databaseQuery.filter((item) => {
+      return (
+        item.quantityAvailable < 0
+      );
+    })
     this.setState({
-      relist: results
+      relist: relistResults,
+      relistPushed: pushedResults,
+      negatives: negativeResults
     })
   }
 
-  async findRelistToPush(dateRegex) {
-    let results = await inventorydb.find({
-      $and: [
-        {$or: [
-          {relist: true},
-          {flag: {$regex: dateRegex}}
-        ]},
-        {$or: [
-          {quantityAvailable: {$ne: 0}},
-          {committed: {$ne: 0}},
-          {pendingCheckout: {$ne: 0}},
-          {pendingPayment: {$ne: 0}},
-          {pendingShipment: {$ne: 0}},
-        ]}
-      ]
-    }).sort({bin: 1});
-    this.setState({
-      relistPushed: results
-    })
-  }
-
-  async handleSubmit(event) {
-    event.preventDefault();
+  async componentDidMount() {
     let today = new Date();
-    let dd = today.getDate();
-    let mm = today.getMonth() + 1;  // January is 0
-    let flagDate = mm + '/' + dd;
-    let dateRegex = new RegExp('recount ' + flagDate, 'gi');
-    console.log(dateRegex)
+    let flagDate = (today.getMonth() + 1) + '/' + today.getDate();;
 
-    await this.findRelist(dateRegex);
-    await this.findRelistToPush(dateRegex);
+    await this.findRelist(flagDate);
     await this.findLessNine();
     await this.findAlerts();
     await this.findDelist();
@@ -153,31 +135,11 @@ export default class ReportsPage extends Component {
     })
   }
   
-  handleChange(event) {
-    this.setState({value: event.target.value});
-  }
-
-  async handleFind(event) {
-    event.preventDefault();
-    console.log('state: ', this.state)
-    let results = await inventorydb.find({ sku: this.state.value });
-    console.log('results', results)
-  }
-
   render() {
     return (
     <div>
-      <div className="input-sku">
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            SKU:
-            <input type="text" value={this.state.skuSearch} onChange={this.handleChange} />
-          </label>
-          <input type="submit" value="Submit" />
-        </form>
-      </div>
-    <Workbook filename='files.xlsx' element={<button className='downlaod-btn' style={styles.reportButton}>
-      {(this.state.isLoading) ? <span style={styles.btnSpan}>Loading Reports</span> : <span style={styles.btnSpan}>Download</span>}
+    <Workbook filename='files.xlsx' element={<button className='download-btn'>
+      {(this.state.isLoading) ? <span>Loading Reports</span> : <span style={{color: '#61efa7'}}>Download Reports</span>}
       </button>}>
       <Workbook.Sheet data={this.state.lessNine} name='Less9'>
       <Workbook.Column label='Sku' value='sku' />
@@ -268,7 +230,7 @@ const styles = {
     userSelect: 'none',
     paddingLeft: 16,
     paddingRight: 16,
-    color: 'rgba(255, 145, 145)',
+    color: '#fff',
     fontFamily: 'Open Sans, Arial, sans-serif'
   }
 }

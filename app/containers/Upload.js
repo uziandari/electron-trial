@@ -43,7 +43,7 @@ export default class Upload extends Component {
       fileMatch: {
         CurrentInventoryResults: 'NS Inventory',
         InventoryExport: 'CA Inventory',
-        NewReceiptsSearch: 'New Receipts',
+        MostRecentReceipts: 'New Receipts',
         relist: 'To Relist',
         removes: 'To Remove'
       },
@@ -57,13 +57,6 @@ export default class Upload extends Component {
       filesPreview: [],
       filesToBeSent: [],
       rejectedFiles: [],
-      fileMatch: {
-        CurrentInventoryResults: 'NS Inventory',
-        InventoryExport: 'CA Inventory',
-        NewReceiptsSearch: 'New Receipts',
-        relist: 'To Relist',
-        removes: 'To Remove'
-      },
       filesUploadingStatus: 'notLoaded',
       filesUploaded: 0
     })
@@ -86,7 +79,11 @@ export default class Upload extends Component {
           filesToBeSent.push(acceptedFiles[i]);
           filesPreview.push(this.state.fileMatch[file]);
         }
-        this.setState({filesToBeSent, filesPreview});
+        this.setState({
+          filesToBeSent, 
+          filesPreview,
+          filesUploadingStatus: 'notLoaded',
+        });
       } else {
         console.log(`file ${acceptedFiles[i].name} was not accepted.`)
       }
@@ -205,6 +202,12 @@ export default class Upload extends Component {
                           onClick={(event) => this.handleClick(event)}
             />
             </MuiThemeProvider>
+            <div className='reports' style={{width: '100%', margin: 0, textAlign: 'center'}}>
+              {
+                (this.state.filesUploadingStatus === 'uploadComplete') ?
+                <ReportsPage /> : null
+              } 
+            </div>
           </div>
           <div className='drop-area' style={styles.dropArea}>
             <Dropzone 
@@ -219,12 +222,6 @@ export default class Upload extends Component {
         </div>
         <div className='upload-status' style={styles.uploadStatus}>
           <Loading status={this.state.filesUploadingStatus} filesToUpload={this.state.filesToBeSent.length} filesUploaded={this.state.filesUploaded} />
-        </div>
-        <div className='reports' style={{width: '100vw', textAlign: 'center'}}>
-          {/* {
-            (this.state.filesUploadingStatus === 'uploadComplete') ?
-            <ReportsPage /> : null
-          } */}
         </div>
       </div>
     )
@@ -248,7 +245,8 @@ const styles = {
     marginTop: 25,
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'    
+    justifyContent: 'flex-start',
+    flexDirection: 'column'    
   },
   subtitle: {
     alignSelf: 'center',

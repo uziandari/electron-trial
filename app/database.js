@@ -49,7 +49,7 @@ const fieldNames = [
 ];
 
 fieldNames.forEach((field) => {
-  inventorydb.ensureIndex({ fieldName: field}, (err) => {
+  inventorydb.ensureIndex({ fieldName: field, sparse: true}, (err) => {
     console.log(err)
   });
 })
