@@ -131,6 +131,7 @@ export default class ReportsPage extends Component {
       delist: [],
       relist: [],
       relistPushed: [],
+      negatives: [],
       isLoading: true
     })
   }
@@ -199,7 +200,12 @@ export default class ReportsPage extends Component {
         <Workbook.Column label='Flag' value='flag'/>
         <Workbook.Column label='location' value='invLocation'/>
         </Workbook.Sheet>
-      </Workbook> 
+        <Workbook.Sheet data={this.state.negatives} name='NegativeAvailable'>
+          <Workbook.Column label='Sku' value='sku' />
+          <Workbook.Column label='Description' value='description'/>
+          <Workbook.Column label='Available' value='quantityAvailable'/>
+        </Workbook.Sheet>
+      </Workbook>  
       </div>  
     );
   }
