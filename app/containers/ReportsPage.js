@@ -113,8 +113,11 @@ export default class ReportsPage extends Component {
   }
 
   async componentDidMount() {
-    let today = new Date();
-    let flagDate = (today.getMonth() + 1) + '/' + today.getDate();;
+    const today = new Date();
+    const flagDate = (today.getMonth() + 1) + '/' + today.getDate();
+    this.setState({
+      dateString: flagDate
+    });
 
     await this.findRelist(flagDate);
     await this.findLessNine();
@@ -137,9 +140,10 @@ export default class ReportsPage extends Component {
   }
   
   render() {
+    
     return (
     <div>
-    <Workbook filename='files.xlsx' element={<button className='download-btn'>
+    <Workbook filename={`reports ${this.state.dateString}.xlsx`} element={<button className='download-btn'>
       {(this.state.isLoading) ? <span>Loading Reports</span> : <span style={{color: '#61efa7'}}>Download Reports</span>}
       </button>}>
       <Workbook.Sheet data={this.state.lessNine} name='Less9'>
