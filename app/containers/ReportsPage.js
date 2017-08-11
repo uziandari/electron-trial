@@ -15,8 +15,7 @@ export default class ReportsPage extends Component {
       relist: [],
       relistPushed: [],
       negatives: [],
-      isLoading: true,
-      value: ''
+      isLoading: true
     }    
   }
 
@@ -86,18 +85,14 @@ export default class ReportsPage extends Component {
     let databaseQuery = await inventorydb.find({}).sort({bin: 1});
     let relistResults = await databaseQuery.filter((item) => {
       return (
-        (item.relist === true && item.quantityAvailable === 0 && item.committed === 0 &&
-          item.pendingCheckout === 0 && item.pendingPayment === 0 && item.pendingShipment === 0) ||
-        (item.flag.indexOf('recount ' + flagDate) !== -1 && item.quantityAvailable === 0 && item.committed === 0 &&
-          item.pendingCheckout === 0 && item.pendingPayment === 0 && item.pendingShipment === 0)
+        ((item.relist === true || item.flag.indexOf('recount ' + flagDate) !== -1) && item.quantityAvailable === 0 && item.committed === 0 &&
+          item.pendingCheckout === 0 && item.pendingPayment === 0 && item.pendingShipment === 0 && item.invLocation !== "NORFOLK")
       );
     });
     let pushedResults = await databaseQuery.filter((item) => {
       return (
-        (item.relist === true && (item.quantityAvailable !== 0 || item.committed !== 0 ||
-          item.pendingCheckout !== 0 || item.pendingPayment !== 0 || item.pendingShipment !== 0)) ||
-        (item.flag.indexOf('recount ' + flagDate) !== -1 && (item.quantityAvailable !== 0 || item.committed !== 0 ||
-          item.pendingCheckout !== 0 || item.pendingPayment !== 0 || item.pendingShipment !== 0))
+        ((item.relist === true || item.flag.indexOf('recount ' + flagDate) !== -1) && (item.quantityAvailable !== 0 || item.committed !== 0 ||
+          item.pendingCheckout !== 0 || item.pendingPayment !== 0 || item.pendingShipment !== 0 || item.invLocation !== "AUCTION"))
       );
     });
     let negativeResults = await databaseQuery.filter((item) => {
@@ -115,9 +110,16 @@ export default class ReportsPage extends Component {
   async componentDidMount() {
     const today = new Date();
     const flagDate = (today.getMonth() + 1) + '/' + today.getDate();
+    const hours = (today) => {
+      if (today.getHours >= 12) {
+        return 'pm';
+      }
+      return 'am';
+    };
+
     this.setState({
-      dateString: flagDate
-    });
+      dateString: flagDate + hours(today)
+    })
 
     await this.findRelist(flagDate);
     await this.findLessNine();
@@ -143,22 +145,10 @@ export default class ReportsPage extends Component {
     
     return (
     <div>
-    <Workbook filename={`reports ${this.state.dateString}.xlsx`} element={<button className='download-btn'>
-      {(this.state.isLoading) ? <span>Loading Reports</span> : <span style={{color: '#61efa7'}}>Download Reports</span>}
-      </button>}>
-      <Workbook.Sheet data={this.state.lessNine} name='Less9'>
-      <Workbook.Column label='Sku' value='sku' />
-      <Workbook.Column label='Description' value='description'/>
-      <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
-      <Workbook.Column label='Available' value='quantityAvailable'/>
-      <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
-      <Workbook.Column label='Committed' value={row => Math.max(row.committed, row.pendingShipment)} />
-      <Workbook.Column label='Bin' value='bin'/>
-      <Workbook.Column label='Backstock' value='backStock'/>
-      <Workbook.Column label='UPC' value='upc'/>
-      <Workbook.Column label='Stock' value='quantity'/>
-      </Workbook.Sheet>
-      <Workbook.Sheet data={this.state.alerts} name='Alerts'>
+      <Workbook filename={`reports ${this.state.dateString}.xlsx`} element={<button className='download-btn' disabled={this.state.isLoading}>
+        {(this.state.isLoading) ? <span>Loading Reports</span> : <span>Download Reports</span>}
+        </button>}>
+        <Workbook.Sheet data={this.state.lessNine} name='Less9'>
         <Workbook.Column label='Sku' value='sku' />
         <Workbook.Column label='Description' value='description'/>
         <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
@@ -169,78 +159,60 @@ export default class ReportsPage extends Component {
         <Workbook.Column label='Backstock' value='backStock'/>
         <Workbook.Column label='UPC' value='upc'/>
         <Workbook.Column label='Stock' value='quantity'/>
-        <Workbook.Column label='Inline' value='inline'/>
-      </Workbook.Sheet>
-      <Workbook.Sheet data={this.state.delist} name='Delist'>
-        <Workbook.Column label='Sku' value='sku' />
-        <Workbook.Column label='Description' value='description'/>
-        <Workbook.Column label='NS Qty' value={row => row.quantity - row.committed} />
-        <Workbook.Column label='Inline' value='inline'/>
-      </Workbook.Sheet>
-      <Workbook.Sheet data={this.state.relist} name='Relist'>
-        <Workbook.Column label='Sku' value='sku' />
-        <Workbook.Column label='Description' value='description'/>
-        <Workbook.Column label='Bin' value='bin'/>
-        <Workbook.Column label='Backstock' value='backStock'/>
-        <Workbook.Column label='UPC' value='upc'/>
-        <Workbook.Column label='Stock' value='quantity'/>
-        <Workbook.Column label='Inline' value='inline'/>
-        <Workbook.Column label='Flag' value='flag'/>
-        <Workbook.Column label='location' value='invLocation'/>
-      </Workbook.Sheet>
-      <Workbook.Sheet data={this.state.relistPushed} name='RelistToPush'>
-        <Workbook.Column label='Sku' value='sku' />
-        <Workbook.Column label='Description' value='description'/>
-        <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
-        <Workbook.Column label='Available' value='quantityAvailable'/>
-        <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
-        <Workbook.Column label='PendingShipment' value='pendingShipment'/>
-        <Workbook.Column label='Committed' value='committed'/>
-        <Workbook.Column label='Bin' value='bin'/>
-        <Workbook.Column label='Backstock' value='backStock'/>
-        <Workbook.Column label='UPC' value='upc'/>
-        <Workbook.Column label='Stock' value='quantity'/>
-        <Workbook.Column label='Inline' value='inline'/>
-        <Workbook.Column label='Flag' value='flag'/>
-        <Workbook.Column label='location' value='invLocation'/>
         </Workbook.Sheet>
-        <Workbook.Sheet data={this.state.negatives} name='NegativeAvailable'>
+        <Workbook.Sheet data={this.state.alerts} name='Alerts'>
           <Workbook.Column label='Sku' value='sku' />
           <Workbook.Column label='Description' value='description'/>
+          <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
           <Workbook.Column label='Available' value='quantityAvailable'/>
+          <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
+          <Workbook.Column label='Committed' value={row => Math.max(row.committed, row.pendingShipment)} />
+          <Workbook.Column label='Bin' value='bin'/>
+          <Workbook.Column label='Backstock' value='backStock'/>
+          <Workbook.Column label='UPC' value='upc'/>
+          <Workbook.Column label='Stock' value='quantity'/>
+          <Workbook.Column label='Inline' value='inline'/>
         </Workbook.Sheet>
-      </Workbook>  
+        <Workbook.Sheet data={this.state.delist} name='Delist'>
+          <Workbook.Column label='Sku' value='sku' />
+          <Workbook.Column label='Description' value='description'/>
+          <Workbook.Column label='NS Qty' value={row => row.quantity - row.committed} />
+          <Workbook.Column label='Inline' value='inline'/>
+        </Workbook.Sheet>
+        <Workbook.Sheet data={this.state.relist} name='Relist'>
+          <Workbook.Column label='Sku' value='sku' />
+          <Workbook.Column label='Description' value='description'/>
+          <Workbook.Column label='Bin' value='bin'/>
+          <Workbook.Column label='Backstock' value='backStock'/>
+          <Workbook.Column label='UPC' value='upc'/>
+          <Workbook.Column label='Stock' value='quantity'/>
+          <Workbook.Column label='Inline' value='inline'/>
+          <Workbook.Column label='Flag' value='flag'/>
+          <Workbook.Column label='location' value='invLocation'/>
+        </Workbook.Sheet>
+        <Workbook.Sheet data={this.state.relistPushed} name='RelistToPush'>
+          <Workbook.Column label='Sku' value='sku' />
+          <Workbook.Column label='Description' value='description'/>
+          <Workbook.Column label='Total' value={row => row.quantityAvailable + row.pendingCheckout + row.pendingPayment + row.pendingShipment} />
+          <Workbook.Column label='Available' value='quantityAvailable'/>
+          <Workbook.Column label='Pending' value={row => (row.pendingCheckout + row.pendingPayment)} />
+          <Workbook.Column label='PendingShipment' value='pendingShipment'/>
+          <Workbook.Column label='Committed' value='committed'/>
+          <Workbook.Column label='Bin' value='bin'/>
+          <Workbook.Column label='Backstock' value='backStock'/>
+          <Workbook.Column label='UPC' value='upc'/>
+          <Workbook.Column label='Stock' value='quantity'/>
+          <Workbook.Column label='Inline' value='inline'/>
+          <Workbook.Column label='Flag' value='flag'/>
+          <Workbook.Column label='location' value='invLocation'/>
+          </Workbook.Sheet>
+          <Workbook.Sheet data={this.state.negatives} name='NegativeAvailable'>
+            <Workbook.Column label='Sku' value='sku' />
+            <Workbook.Column label='Description' value='description'/>
+            <Workbook.Column label='Available' value='quantityAvailable'/>
+          </Workbook.Sheet>
+        </Workbook>  
       </div>  
     );
-  }
-}
-
-const styles = {
-
-  reportButton: {
-    height: 36,
-    borderRadius: 2,
-    transition: 'all 450ms cubic-bezier(0.23, 1, 0.32, 1) 0ms',
-    top: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-    marginTop: 10,
-    border: '1px solid rgba(0, 0, 0, 0.4)',
-    borderRadius: 4,
-    bottomBorderColor: '1px solid rgba(0, 0, 0, 0.5)',
-    boxShadow: '0 5px 12px -2px rgba(0, 0, 0, 0.3)'
-  },
-  btnSpan: {
-    position: 'relative',
-    opacity: 1,
-    fontSize: 14,
-    letterSpacing: 0,
-    textTransform: 'uppercase',
-    fontWeight: 500,
-    margin: 0,
-    userSelect: 'none',
-    paddingLeft: 16,
-    paddingRight: 16,
-    color: '#fff',
-    fontFamily: 'Open Sans, Arial, sans-serif'
   }
 }

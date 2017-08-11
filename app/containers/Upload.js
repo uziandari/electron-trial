@@ -4,8 +4,6 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Dropzone from 'react-dropzone';
 import RaisedButton from 'material-ui/RaisedButton';
 import injectTapEventPlugin from 'react-tap-event-plugin';
-import ContentAddCircleOutline from '../../node_modules/material-ui/svg-icons/content/add-circle-outline';
-import ActionCheckCircle from '../../node_modules/material-ui/svg-icons/action/check-circle';
 import {List, ListItem} from 'material-ui/List';
 import Checkbox from 'material-ui/Checkbox';
 import ActionInfo from 'material-ui/svg-icons/action/info';
@@ -147,7 +145,10 @@ export default class Upload extends Component {
               .then((results) => {
                 console.log(`inserted ${results.length} items into the db`)
                 return that.setState({
-                  filesUploadingStatus: 'uploadComplete'
+                  filesUploadingStatus: 'uploadComplete',
+                  filesPreview: [],
+                  filesToBeSent: [],
+                  rejectedFiles: [],
                 });
               });
             }); 
@@ -171,16 +172,13 @@ export default class Upload extends Component {
       return <ListItem key={key} primaryText={this.state.fileMatch[key]} style={styles.filesListStyle} 
                         leftIcon={<Checkbox checked={(this.state.filesPreview.indexOf(this.state.fileMatch[key]) > -1)}
                                   onCheck={() => this.deleteElement(this.state.filesPreview.indexOf(this.state.fileMatch[key]))}
-                                  iconStyle={{fill: '#61efa7'}}
+                                  iconStyle={{fill: '#000'}}
                                   />} 
-                        rightIcon={<ActionInfo 
-                          style={{fill: 'rgba(0, 10, 25, 0.4)'}}
-                        />}
         />
     });
 
     return (
-      <div className="upload">
+      <div className="upload" style={{padding: '1.5em'}}>
         <div className='drop-container' style={styles.dropContainer}>
           <div className='files-list' style={styles.fileList}>
             <h3 style={styles.subtitle}>Uploads</h3>
@@ -193,20 +191,19 @@ export default class Upload extends Component {
             <MuiThemeProvider>
             <RaisedButton label="Upload Files" 
                           disabled={this.state.filesToBeSent.length === 0 ? true : false }
-                          disabledBackgroundColor='rgba(0, 10, 25, 0.1)'
-                          disabledLabelColor='rgba(0, 10, 25, 0.5)'
+                          disabledBackgroundColor='rgba(0, 188, 212, 0.1)'
+                          disabledLabelColor='rgba(0, 0, 0, 0.5)'
                           style={styles.loadButton}
-                          labelColor='#61efa7'
+                          labelColor='#000'
                           labelStyle={{fontFamily: 'Open Sans, Arial, sans-serif'}}
-                          backgroundColor='rgba(0, 10, 25, 0.5)'
+                          backgroundColor='rgba(0, 188, 212, 1)'
                           onClick={(event) => this.handleClick(event)}
             />
             </MuiThemeProvider>
             <div className='reports' style={{width: '100%', margin: 0, textAlign: 'center'}}>
-              {
-                (this.state.filesUploadingStatus === 'uploadComplete') ?
-                <ReportsPage /> : null
-              } 
+              <div className='upload-status' style={styles.uploadStatus}>
+                <Loading status={this.state.filesUploadingStatus} filesToUpload={this.state.filesToBeSent.length} filesUploaded={this.state.filesUploaded} />
+              </div>
             </div>
           </div>
           <div className='drop-area' style={styles.dropArea}>
@@ -220,9 +217,10 @@ export default class Upload extends Component {
             </Dropzone>
           </div>
         </div>
-        <div className='upload-status' style={styles.uploadStatus}>
-          <Loading status={this.state.filesUploadingStatus} filesToUpload={this.state.filesToBeSent.length} filesUploaded={this.state.filesUploaded} />
-        </div>
+        {
+          (this.state.filesUploadingStatus === 'uploadComplete') ?
+          <div className="reports-container"><ReportsPage /></div> : null
+        } 
       </div>
     )
   }
@@ -232,7 +230,8 @@ const styles = {
   dropzoneStyle: {
     width: '90%',
     height: '100%',
-    border: '1px groove #61efa7',
+    border: '1px groove #000',
+    borderRadius: 2,
     marginRight: '5%',
     display: 'flex',
     alignItems: 'center',
@@ -261,21 +260,21 @@ const styles = {
   },
   dropArea: {
     height: 360,
-    flex: 2,
+    marginTop: '1.5em',
+    flex: 2.2,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'column'
   },
   filesListStyle: {
-    color: '#fff',
+    color: 'rgba(0, 0, 0, 0.87)',
     fontFamily: 'Open Sans, Arial, sans-serif',
   },
   loadButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    backgroundColor: 'rgba(0, 188, 212, 0.1)',
     marginTop: 10,
-    border: '1px solid rgba(0, 0, 0, 0.4)',
-    borderRadius: 4,
+    borderRadius: 2,
     bottomBorderColor: '1px solid rgba(0, 0, 0, 0.5)',
     boxShadow: '0 5px 12px -2px rgba(0, 0, 0, 0.3)',
   }

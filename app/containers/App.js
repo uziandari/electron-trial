@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import type { Children } from 'react';
 
-import Navigation from '../components/Navigation';
+import Titlebar from '../components/Titlebar';
 
 export default class App extends Component {
   props: {
@@ -12,7 +12,7 @@ export default class App extends Component {
   render() {
     return (
       <div>
-        <Navigation />
+        <Titlebar />
         {this.props.children}
       </div>
     );
