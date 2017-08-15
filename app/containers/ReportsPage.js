@@ -110,15 +110,9 @@ export default class ReportsPage extends Component {
   async componentDidMount() {
     const today = new Date();
     const flagDate = (today.getMonth() + 1) + '/' + today.getDate();
-    const hours = (today) => {
-      if (today.getHours >= 12) {
-        return 'pm';
-      }
-      return 'am';
-    };
 
     this.setState({
-      dateString: flagDate + hours(today)
+      dateString: flagDate
     })
 
     await this.findRelist(flagDate);

@@ -15,7 +15,6 @@ const styles = {
     margin: 0,
     padding: '1em',
     borderBottom: '2px solid rgba(255, 64, 129, 0.6)',
-    width: '100vw',
     backgroundColor: 'rgb(0, 188, 212)',
     display: 'flex',
     flexDirection: 'row-reverse'
@@ -28,6 +27,6 @@ const styles = {
   versionNumber: {
     color: '#000',
     fontSize: '0.5em',
-    marginRight: '1.5em'
+    paddingRight: '1.5em'
   }
 }
